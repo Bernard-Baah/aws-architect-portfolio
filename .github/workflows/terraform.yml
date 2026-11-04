@@ -1,0 +1,52 @@
+name: terraform
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  fmt-validate:
+    name: fmt + validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: terraform validate (every root module)
+        run: |
+          set -euo pipefail
+          # Any directory containing .tf files, excluding .terraform caches
+          dirs=$(find . -name '*.tf' -not -path '*/.terraform/*' -exec dirname {} \; | sort -u)
+          for d in $dirs; do
+            echo "::group::$d"
+            terraform -chdir="$d" init -backend=false -input=false >/dev/null
+            terraform -chdir="$d" validate
+            echo "::endgroup::"
+          done
+
+  # Added in Project 0, step 6: once the GitHub OIDC role exists in AWS, uncomment
+  # this job and set the AWS_ROLE_ARN repository variable.
+  #
+  # plan:
+  #   needs: fmt-validate
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+  #         aws-region: us-east-1
+  #     - uses: hashicorp/setup-terraform@v3
+  #     - run: terraform -chdir=01-ha-web-app init -input=false
+  #     - run: terraform -chdir=01-ha-web-app plan -input=false
