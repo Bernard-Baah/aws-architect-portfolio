@@ -7,11 +7,11 @@ state and CI.
 
 - [ ] Dedicated AWS account for this portfolio; MFA on root, root locked away
 - [ ] AWS Budget at $25/month with alerts at 50% / 80% / 100%
-- [ ] Terraform, AWS CLI and tflint installed locally
+- [x] Terraform and AWS CLI installed locally (tflint optional)
 - [ ] Sign-in through IAM Identity Center (or an admin IAM user with MFA)
-- [ ] Remote state bucket created with [`bootstrap-backend/`](bootstrap-backend/)
-- [ ] GitHub OIDC provider + plan role deployed with [`github-oidc/`](github-oidc/); `AWS_ROLE_ARN` repo variable set
-- [ ] `plan` job enabled in [`.github/workflows/terraform.yml`](../.github/workflows/terraform.yml)
+- [x] Remote state bucket created with [`bootstrap-backend/`](bootstrap-backend/)
+- [x] GitHub OIDC provider + plan role deployed with [`github-oidc/`](github-oidc/); `AWS_ROLE_ARN` repo variable set
+- [x] `plan` job enabled in [`.github/workflows/terraform.yml`](../.github/workflows/terraform.yml)
 
 ## Remote state
 
@@ -42,9 +42,14 @@ terraform apply -var="state_bucket_name=<your-state-bucket>"
 ```
 
 Copy the `role_arn` output into GitHub → **Settings → Secrets and variables → Actions →
-Variables** as `AWS_ROLE_ARN`, then uncomment the `plan` job in the workflow.
+Variables** as `AWS_ROLE_ARN`. The workflow's `plan` job runs automatically once that variable exists.
 
 **Design notes**
+- Repos created after 2026-07-15 get GitHub's **immutable subject** format,
+  `repo:Bernard-Baah@78100467/aws-architect-portfolio@1445806520:...`, so the trust policy pins the
+  numeric owner and repo IDs. A repo deleted and recreated under the same name can't reuse the role.
+  (The first CI run failed with `Not authorized to perform sts:AssumeRoleWithWebIdentity`
+  until the IDs were added.)
 - The `sub` condition is the critical control. Without it, *any* GitHub repository could assume the role.
 - Plan and apply are separate privileges. A write-capable apply role, limited to `main` and gated by a
   GitHub environment approval, is a later step.

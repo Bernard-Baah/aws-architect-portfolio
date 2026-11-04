@@ -47,9 +47,18 @@ module "github_oidc" {
 
   github_repo       = "Bernard-Baah/aws-architect-portfolio"
   state_bucket_name = var.state_bucket_name
+
+  # Repo created 2026-11-04, so GitHub uses the immutable sub format:
+  # repo:Bernard-Baah@78100467/aws-architect-portfolio@1445806520:...
+  github_owner_id = 78100467
+  github_repo_id  = 1445806520
 }
 
 output "role_arn" {
   description = "Paste into the AWS_ROLE_ARN repository variable"
   value       = module.github_oidc.role_arn
+}
+
+output "allowed_subjects" {
+  value = module.github_oidc.allowed_subjects
 }
