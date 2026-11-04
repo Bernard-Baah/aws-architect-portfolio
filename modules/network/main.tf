@@ -207,7 +207,7 @@ data "aws_iam_policy_document" "flow_logs_write" {
       "logs:DescribeLogStreams",
     ]
 
-    resources =["${aws_cloudwatch_log_group.flow_logs.arn}:*"]
+    resources = ["${aws_cloudwatch_log_group.flow_logs.arn}:*"]
   }
 }
 
