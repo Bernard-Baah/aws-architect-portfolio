@@ -32,21 +32,42 @@ jobs:
             echo "::endgroup::"
           done
 
-  # Added in Project 0, step 6: once the GitHub OIDC role exists in AWS, uncomment
-  # this job and set the AWS_ROLE_ARN repository variable.
-  #
-  # plan:
-  #   needs: fmt-validate
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-  #         aws-region: us-east-1
-  #     - uses: hashicorp/setup-terraform@v3
-  #     - run: terraform -chdir=01-ha-web-app init -input=false
-  #     - run: terraform -chdir=01-ha-web-app plan -input=false
+  # Signs in to AWS through GitHub OIDC (no stored keys) and runs a read-only
+  # terraform plan for every deployed stack. Skipped until the AWS_ROLE_ARN
+  # repository variable exists.
+  plan:
+    name: plan (${{ matrix.stack }})
+    needs: fmt-validate
+    if: ${{ vars.AWS_ROLE_ARN != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # lets the job request a GitHub OIDC token
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        # Add each project's root folder here once it's deployed.
+        # (00-setup/bootstrap-backend is excluded: it keeps local state.)
+        stack:
+          - 00-setup/github-oidc
+    env:
+      TF_STATE_BUCKET: bernard-tfstate-40b007
+      TF_VAR_state_bucket_name: bernard-tfstate-40b007
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Who am I?
+        run: aws sts get-caller-identity
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: terraform init
+        run: terraform -chdir="${{ matrix.stack }}" init -input=false -backend-config="bucket=${TF_STATE_BUCKET}"
+
+      - name: terraform plan
+        run: terraform -chdir="${{ matrix.stack }}" plan -input=false -lock-timeout=60s
