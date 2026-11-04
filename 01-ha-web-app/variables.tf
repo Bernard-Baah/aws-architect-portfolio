@@ -21,6 +21,24 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+variable "app_port" {
+  description = "Port the app listens on behind the ALB"
+  type        = number
+  default     = 8080
+}
+
+variable "db_multi_az" {
+  description = "RDS standby in the second AZ. Set false to halve DB cost when you're not testing failover."
+  type        = bool
+  default     = true
+}
+
+variable "db_backup_retention_days" {
+  description = "Set to 1 if AWS rejects 7 (some free-plan accounts are limited)"
+  type        = number
+  default     = 7
+}
+
 variable "single_nat_gateway" {
   description = "One shared NAT for the lab. Set false for one NAT per AZ (production pattern)."
   type        = bool
