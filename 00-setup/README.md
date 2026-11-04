@@ -45,6 +45,11 @@ Copy the `role_arn` output into GitHub → **Settings → Secrets and variables 
 Variables** as `AWS_ROLE_ARN`. The workflow's `plan` job runs automatically once that variable exists.
 
 **Design notes**
+- Repos created after 2026-07-15 get GitHub's **immutable subject** format,
+  `repo:Bernard-Baah@78100467/aws-architect-portfolio@1445806520:...`, so the trust policy pins the
+  numeric owner and repo IDs. A repo deleted and recreated under the same name can't reuse the role.
+  (The first CI run failed with `Not authorized to perform sts:AssumeRoleWithWebIdentity`
+  until the IDs were added.)
 - The `sub` condition is the critical control. Without it, *any* GitHub repository could assume the role.
 - Plan and apply are separate privileges. A write-capable apply role, limited to `main` and gated by a
   GitHub environment approval, is a later step.

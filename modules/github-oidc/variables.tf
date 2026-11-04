@@ -8,6 +8,23 @@ variable "github_repo" {
   }
 }
 
+variable "github_owner_id" {
+  description = <<-EOT
+    Numeric ID of the repo owner. Repos created (or renamed/transferred) after
+    2026-07-15, or opted in, use GitHub's immutable subject format
+    repo:<owner>@<owner_id>/<repo>@<repo_id>:... and need both IDs set.
+    Find them with: gh api repos/<owner>/<repo> --jq '{owner_id: .owner.id, repo_id: .id}'
+  EOT
+  type        = number
+  default     = null
+}
+
+variable "github_repo_id" {
+  description = "Numeric ID of the repository (see github_owner_id). Set both or neither."
+  type        = number
+  default     = null
+}
+
 variable "role_name" {
   description = "Name of the IAM role GitHub Actions assumes"
   type        = string

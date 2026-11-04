@@ -3,6 +3,18 @@
 
 locals {
   github_oidc_url = "token.actions.githubusercontent.com"
+
+  repo_owner = split("/", var.github_repo)[0]
+  repo_name  = split("/", var.github_repo)[1]
+
+  use_immutable_sub = var.github_owner_id != null && var.github_repo_id != null
+
+  # Legacy:    repo:owner/name
+  # Immutable: repo:owner@<owner_id>/name@<repo_id>   (GitHub, 2026+)
+  sub_prefix = (local.use_immutable_sub
+    ? "repo:${local.repo_owner}@${var.github_owner_id}/${local.repo_name}@${var.github_repo_id}"
+    : "repo:${var.github_repo}"
+  )
 }
 
 data "aws_caller_identity" "current" {}
@@ -43,10 +55,11 @@ data "aws_iam_policy_document" "trust" {
     }
 
     # Pin to this repo only. Without this condition ANY GitHub repo could assume the role.
+    # With immutable IDs, a deleted-and-recreated repo of the same name can't assume it either.
     condition {
       test     = "StringLike"
       variable = "${local.github_oidc_url}:sub"
-      values   = [for s in var.allowed_subjects : "repo:${var.github_repo}:${s}"]
+      values   = [for s in var.allowed_subjects : "${local.sub_prefix}:${s}"]
     }
   }
 }
@@ -56,6 +69,13 @@ resource "aws_iam_role" "plan" {
   description          = "Assumed by GitHub Actions in ${var.github_repo} to run terraform plan"
   assume_role_policy   = data.aws_iam_policy_document.trust.json
   max_session_duration = var.max_session_duration
+
+  lifecycle {
+    precondition {
+      condition     = (var.github_owner_id == null) == (var.github_repo_id == null)
+      error_message = "Set both github_owner_id and github_repo_id, or neither."
+    }
+  }
 }
 
 # Read-only view of the account, enough for terraform plan to refresh state.
