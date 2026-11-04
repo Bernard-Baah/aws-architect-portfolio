@@ -50,6 +50,7 @@ jobs:
         # (00-setup/bootstrap-backend is excluded: it keeps local state.)
         stack:
           - 00-setup/github-oidc
+          - 01-ha-web-app
     env:
       TF_STATE_BUCKET: bernard-tfstate-40b007
       TF_VAR_state_bucket_name: bernard-tfstate-40b007
