@@ -59,7 +59,7 @@ The default security group has no rules.
 | Test | Measured |
 |------|----------|
 | Instance termination → replaced | _ min |
-| RDS forced failover downtime | _ s |
+| RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
 | Scale-out under load | _ → _ instances |
 
 ## Deploy / destroy
@@ -83,8 +83,23 @@ DB=$(terraform output -raw db_identifier)
 aws rds describe-db-instances --db-instance-identifier $DB \
   --query 'DBInstances[0].[AvailabilityZone,SecondaryAvailabilityZone]'
 aws rds reboot-db-instance --db-instance-identifier $DB --force-failover
-# re-run describe-db-instances: the two AZs swap. Record how long the instance showed "rebooting".
+# re-run describe-db-instances: the two AZs swap
+aws rds describe-events --source-identifier $DB --source-type db-instance --duration 30 \
+  --query 'Events[].[Date,Message]' --output text
 ```
+
+The event log is the source of truth for timing. `AvailabilityZone` in `describe-db-instances` can
+lag by a minute or two after the failover completes. In the first test it still showed the old AZ
+when the status returned to `available`.
+
+| Event (UTC, 2026-11-05) | Time |
+|-------------------------|------|
+| Multi-AZ instance failover started | 18:03:19 |
+| DB instance restarted | 18:03:34 |
+| Multi-AZ instance failover completed | 18:03:59 |
+
+This measures the database side only. Real application downtime, including DNS TTL and connection
+retries, gets measured once the app tier exists.
 
 Network only, no NAT (nearly free, good for a quick look):
 ```bash
