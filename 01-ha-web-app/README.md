@@ -11,7 +11,7 @@ group** (private app subnets) → **RDS PostgreSQL Multi-AZ** (private data subn
 Secrets Manager. No SSH; access through SSM Session Manager. **Nothing in the VPC has a public endpoint
 except the NAT Gateway, which is outbound only.**
 
-_Diagram: `docs/diagrams/01-ha-web-app.png`_
+![Architecture: CloudFront and WAF reach an internal ALB through a VPC origin; the ALB spreads traffic across an Auto Scaling group in two AZs; the instances use RDS PostgreSQL Multi-AZ in isolated data subnets](../docs/diagrams/01-ha-web-app.svg)
 
 ### Network layout (`10.0.0.0/16`, 2 AZs)
 

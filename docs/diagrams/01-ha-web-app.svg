@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="880" viewBox="0 0 1200 880" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ah-16191f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16191f"/></marker>
+<marker id="ah-2e5fa8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e5fa8"/></marker>
+<marker id="ah-5f6b7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6b7a"/></marker>
+<marker id="ah-1d8102" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d8102"/></marker>
+</defs>
+<rect width="1200" height="880" fill="#ffffff"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#16191f" text-anchor="start">Project 01 · Highly available multi-tier web app</text>
+<text x="1160" y="44" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="end">github.com/Bernard-Baah/aws-architect-portfolio</text>
+<text x="40" y="68" font-size="13.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">No public endpoint inside the VPC. Built with Terraform in us-east-1; every layer measured.</text>
+<rect x="430" y="92" width="745" height="708" rx="10" fill="none" stroke="#7d8998" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="1163" y="112" font-size="12.5" font-weight="600" fill="#7d8998" text-anchor="end">AWS Region · us-east-1</text>
+<rect x="450" y="126" width="525" height="654" rx="8" fill="none" stroke="#8c4fff" stroke-width="2"/>
+<text x="700" y="150" font-size="12.5" font-weight="600" fill="#8c4fff" text-anchor="start">VPC 10.0.0.0/16 · Flow Logs on</text>
+<rect x="468" y="162" width="236" height="604" rx="8" fill="none" stroke="#3f7fd8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="478" y="180" font-size="12" font-weight="600" fill="#3f7fd8" text-anchor="start">us-east-1a</text>
+<rect x="722" y="162" width="236" height="604" rx="8" fill="none" stroke="#3f7fd8" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="732" y="180" font-size="12" font-weight="600" fill="#3f7fd8" text-anchor="start">us-east-1b</text>
+<rect x="478" y="192" width="216" height="116" rx="6" fill="#eef6e3" stroke="#7aa116" stroke-width="1.2"/>
+<text x="488" y="209" font-size="11" font-weight="600" fill="#7aa116" text-anchor="start">Public 10.0.0.0/24</text>
+<rect x="732" y="192" width="216" height="116" rx="6" fill="#eef6e3" stroke="#7aa116" stroke-width="1.2"/>
+<text x="742" y="209" font-size="11" font-weight="600" fill="#7aa116" text-anchor="start">Public 10.0.1.0/24</text>
+<rect x="478" y="322" width="216" height="246" rx="6" fill="#e8f1fb" stroke="#3f7fd8" stroke-width="1.2"/>
+<text x="488" y="339" font-size="11" font-weight="600" fill="#3f7fd8" text-anchor="start">App 10.0.10.0/24</text>
+<rect x="732" y="322" width="216" height="246" rx="6" fill="#e8f1fb" stroke="#3f7fd8" stroke-width="1.2"/>
+<text x="742" y="339" font-size="11" font-weight="600" fill="#3f7fd8" text-anchor="start">App 10.0.11.0/24</text>
+<rect x="478" y="582" width="216" height="170" rx="6" fill="#eaf0fa" stroke="#2e5fa8" stroke-width="1.2"/>
+<text x="488" y="743" font-size="11" font-weight="600" fill="#2e5fa8" text-anchor="start">Data 10.0.20.0/24 (isolated)</text>
+<rect x="732" y="582" width="216" height="170" rx="6" fill="#eaf0fa" stroke="#2e5fa8" stroke-width="1.2"/>
+<text x="742" y="743" font-size="11" font-weight="600" fill="#2e5fa8" text-anchor="start">Data 10.0.21.0/24 (isolated)</text>
+<rect x="548" y="112" width="132" height="30" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="548" y="112" width="5" height="30" rx="2" fill="#8c4fff"/>
+<text x="562" y="132" font-size="12" font-weight="600" fill="#16191f" text-anchor="start">Internet gateway</text>
+<rect x="492" y="222" width="188" height="62" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="492" y="222" width="5" height="62" rx="2" fill="#8c4fff"/>
+<text x="506" y="242" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">NAT Gateway</text>
+<text x="506" y="258" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">app tier outbound only</text>
+<text x="506" y="274" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">1 shared (lab)</text>
+<text x="840" y="258" font-size="11" font-weight="normal" fill="#5f6b7a" text-anchor="middle" font-style="italic">NAT per AZ in production</text>
+<rect x="490" y="348" width="446" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="490" y="348" width="5" height="56" rx="2" fill="#8c4fff"/>
+<text x="504" y="368" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Internal Application Load Balancer</text>
+<text x="504" y="384" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">no public IP · HTTP :80 from CloudFront prefix list only · /health every 10 s</text>
+<rect x="486" y="430" width="454" height="82" rx="8" fill="none" stroke="#ed7100" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="498" y="444" width="192" height="58" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="498" y="444" width="5" height="58" rx="2" fill="#ed7100"/>
+<text x="512" y="464" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">EC2 t4g.micro</text>
+<text x="512" y="480" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">AL2023 · app :8080 · IMDSv2</text>
+<rect x="744" y="444" width="184" height="58" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="744" y="444" width="5" height="58" rx="2" fill="#ed7100"/>
+<text x="758" y="464" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">EC2 t4g.micro</text>
+<text x="758" y="480" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">AL2023 · app :8080 · IMDSv2</text>
+<text x="715" y="434" font-size="11.5" font-weight="600" fill="#ed7100" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Auto Scaling group · 2–4</text>
+<rect x="492" y="610" width="188" height="62" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="492" y="610" width="5" height="62" rx="2" fill="#2e5fa8"/>
+<text x="506" y="630" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">RDS primary</text>
+<text x="506" y="646" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">PostgreSQL 17 · encrypted</text>
+<rect x="746" y="610" width="182" height="62" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="746" y="610" width="5" height="62" rx="2" fill="#2e5fa8"/>
+<text x="760" y="630" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">RDS standby</text>
+<text x="760" y="646" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">synchronous replica</text>
+<text x="713" y="704" font-size="11.5" font-weight="600" fill="#2e5fa8" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">RDS Multi-AZ · automatic failover</text>
+<text x="713" y="722" font-size="11" font-weight="normal" fill="#5f6b7a" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">no internet route · no egress · password in Secrets Manager</text>
+<text x="1078" y="384" font-size="12" font-weight="600" fill="#5f6b7a" text-anchor="middle">Regional services</text>
+<rect x="992" y="396" width="172" height="50" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="992" y="396" width="5" height="50" rx="2" fill="#dd344c"/>
+<text x="1006" y="416" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Secrets Manager</text>
+<text x="1006" y="432" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">DB credentials, rotated</text>
+<rect x="992" y="458" width="172" height="50" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="992" y="458" width="5" height="50" rx="2" fill="#e7157b"/>
+<text x="1006" y="478" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Systems Manager</text>
+<text x="1006" y="494" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Session Manager shell</text>
+<rect x="992" y="520" width="172" height="50" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="992" y="520" width="5" height="50" rx="2" fill="#e7157b"/>
+<text x="1006" y="540" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">CloudWatch Logs</text>
+<text x="1006" y="556" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">VPC Flow Logs, 7 days</text>
+<text x="40" y="266" font-size="12" font-weight="600" fill="#5f6b7a" text-anchor="start">Internet</text>
+<rect x="40" y="280" width="120" height="52" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="40" y="280" width="5" height="52" rx="2" fill="#16191f"/>
+<text x="54" y="300" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Users</text>
+<text x="54" y="316" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">browser</text>
+<text x="196" y="186" font-size="12" font-weight="600" fill="#5f6b7a" text-anchor="start">Edge · global</text>
+<rect x="196" y="198" width="210" height="112" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="196" y="198" width="5" height="112" rx="2" fill="#8c4fff"/>
+<text x="210" y="218" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Amazon CloudFront</text>
+<text x="210" y="234" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">HTTPS (*.cloudfront.net cert)</text>
+<text x="210" y="250" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">HTTP → HTTPS redirect</text>
+<text x="210" y="266" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">HSTS + security headers</text>
+<text x="210" y="282" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">caching off (dynamic app)</text>
+<rect x="196" y="322" width="210" height="86" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="196" y="322" width="5" height="86" rx="2" fill="#dd344c"/>
+<text x="210" y="342" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">AWS WAF</text>
+<text x="210" y="358" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">per-IP rate limit (500 / 5 min)</text>
+<text x="210" y="374" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Amazon IP reputation list</text>
+<text x="210" y="390" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Core rule set · known bad inputs</text>
+<polyline points="160,306 194,306" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="177" y="298" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">HTTPS</text>
+<polyline points="301,310 301,320" fill="none" stroke="#16191f" stroke-width="1.8" stroke-linejoin="round"/>
+<polyline points="406,262 448,262 448,376 488,376" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="412" y="252" font-size="11" font-weight="600" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">VPC origin</text>
+<text x="412" y="396" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">AWS network</text>
+<polyline points="594,404 594,442" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="836,404 836,442" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="600" y="424" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:8080</text>
+<text x="842" y="424" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:8080</text>
+<polyline points="594,502 594,608" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<polyline points="836,502 836,548 712,548 712,626 682,626" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="600" y="540" font-size="10.5" font-weight="normal" fill="#2e5fa8" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:5432 TLS</text>
+<polyline points="680,656 744,656" fill="none" stroke="#2e5fa8" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="712" y="670" font-size="10" font-weight="normal" fill="#2e5fa8" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">sync</text>
+<polyline points="614,222 614,144" fill="none" stroke="#5f6b7a" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-5f6b7a)" stroke-linejoin="round"/>
+<text x="620" y="176" font-size="10" font-weight="normal" fill="#5f6b7a" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">outbound</text>
+<polyline points="928,472 966,472 966,421 990,421" fill="none" stroke="#5f6b7a" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-5f6b7a)" stroke-linejoin="round"/>
+<polyline points="966,472 966,483 990,483" fill="none" stroke="#5f6b7a" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-5f6b7a)" stroke-linejoin="round"/>
+<rect x="40" y="452" width="366" height="196" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="56" y="476" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Measured on AWS · 2026-11-06</text>
+<text x="56" y="502" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Graceful instance replacement</text>
+<text x="392" y="502" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">100.00%</text>
+<text x="56" y="526" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Instance crash, no warning</text>
+<text x="392" y="526" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">96.5% · ~18 s</text>
+<text x="56" y="550" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">RDS Multi-AZ failover</text>
+<text x="392" y="550" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">40 s</text>
+<text x="56" y="574" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">XSS probe at the edge</text>
+<text x="392" y="574" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">403 (WAF)</text>
+<text x="56" y="598" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">ALB from the internet</text>
+<text x="392" y="598" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">unreachable</text>
+<text x="56" y="622" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">DB check from both AZs</text>
+<text x="392" y="622" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">ok · TLS</text>
+<rect x="40" y="662" width="366" height="138" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="56" y="686" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Security group chain</text>
+<text x="56" y="710" font-size="12" font-weight="normal" fill="#16191f" text-anchor="start">CloudFront prefix list → ALB :80</text>
+<text x="56" y="729" font-size="12" font-weight="normal" fill="#16191f" text-anchor="start">ALB security group → app :8080</text>
+<text x="56" y="748" font-size="12" font-weight="normal" fill="#16191f" text-anchor="start">app security group → RDS :5432</text>
+<text x="56" y="767" font-size="12" font-weight="normal" fill="#16191f" text-anchor="start">RDS: no outbound rules</text>
+<text x="56" y="786" font-size="12" font-weight="normal" fill="#16191f" text-anchor="start">app outbound: HTTPS only (SSM, Secrets Manager)</text>
+<polyline points="40,836 84,836" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="92" y="840" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">request path</text>
+<polyline points="200,836 244,836" fill="none" stroke="#5f6b7a" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-5f6b7a)" stroke-linejoin="round"/>
+<text x="252" y="840" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">outbound only</text>
+<polyline points="370,836 414,836" fill="none" stroke="#2e5fa8" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="422" y="840" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">replication</text>
+<rect x="540" y="827" width="22" height="16" rx="3" fill="#eef6e3" stroke="#7aa116" stroke-width="1.2"/>
+<text x="570" y="840" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">public subnet</text>
+<rect x="710" y="827" width="22" height="16" rx="3" fill="#e8f1fb" stroke="#3f7fd8" stroke-width="1.2"/>
+<text x="740" y="840" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">private app subnet</text>
+<rect x="880" y="827" width="22" height="16" rx="3" fill="#eaf0fa" stroke="#2e5fa8" stroke-width="1.2"/>
+<text x="910" y="840" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">private data subnet</text>
+</svg>
