@@ -33,7 +33,7 @@ jobs:
 
       - name: terraform validate (every module)
         run: |
-          set -uo pipefail
+          set +e -uo pipefail
           # Any directory containing .tf files, excluding .terraform caches
           dirs=$(find . -name '*.tf' -not -path '*/.terraform/*' -exec dirname {} \; | sort -u)
           failed=0
@@ -46,7 +46,7 @@ jobs:
               echo "::endgroup::"
               continue
             fi
-            out=$(terraform -chdir="$d" validate -json)
+            out=$(terraform -chdir="$d" validate -json) || true
             echo "$out" | jq -r '.diagnostics[] | "\(.severity): \(.summary) \(.detail // "")"'
             # Surface each error as a PR annotation on the right file and line
             echo "$out" | jq -r --arg d "${d#./}" '.diagnostics[] | select(.severity=="error")
