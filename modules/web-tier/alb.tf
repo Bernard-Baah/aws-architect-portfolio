@@ -1,14 +1,12 @@
-# Application Load Balancer in the public subnets, forwarding to the ASG.
-#
-# HTTP only for now: HTTPS needs a certificate for a domain. Layer 5 puts
-# CloudFront (with its own TLS certificate) in front and locks the ALB down
-# to CloudFront traffic only.
+# Internal Application Load Balancer in the private app subnets, forwarding to
+# the ASG. It has no public IP: the only way in is CloudFront through a VPC
+# origin (see modules/edge), which also terminates TLS for viewers.
 
 resource "aws_lb" "app" {
   name               = "${var.name}-alb"
   load_balancer_type = "application"
-  internal           = false
-  subnets            = var.public_subnet_ids
+  internal           = true
+  subnets            = var.alb_subnet_ids
   security_groups    = var.alb_security_group_ids
 
   drop_invalid_header_fields = true

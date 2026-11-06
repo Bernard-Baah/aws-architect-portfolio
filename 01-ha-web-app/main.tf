@@ -3,8 +3,8 @@
 #   1. network    VPC, subnets, NAT, routing, flow logs     (done)
 #   2. security groups + RDS Multi-AZ                     (done)
 #   3. compute    launch template + Auto Scaling group      (done)
-#   4. ALB (HTTP; TLS arrives with CloudFront in layer 5)  (this PR)
-#   5. CloudFront + WAF + S3 static assets
+#   4. internal ALB                                         (done)
+#   5. CloudFront (VPC origin) + WAF                        (this PR)
 
 module "network" {
   source = "../modules/network"
@@ -36,10 +36,23 @@ module "web_tier" {
   instance_type      = var.instance_type
 
   vpc_id                 = module.network.vpc_id
-  public_subnet_ids      = module.network.public_subnet_ids
+  alb_subnet_ids         = module.network.app_subnet_ids
   alb_security_group_ids = [aws_security_group.alb.id]
 
   db_host       = module.database.address
   db_name       = module.database.db_name
   db_secret_arn = module.database.master_user_secret_arn
+}
+
+module "edge" {
+  source = "../modules/edge"
+
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
+  name         = var.name
+  alb_arn      = module.web_tier.alb_arn
+  alb_dns_name = module.web_tier.alb_dns_name
 }

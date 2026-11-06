@@ -1,14 +1,15 @@
 # 01 · Highly available multi-tier web app
 
-> **Status:** 🚧 In progress: network, security groups, database, compute and load balancer done
+> **Status:** ✅ All layers built: network, database, compute, internal load balancer, CloudFront + WAF
 
 ## Problem
 _A business-critical app must survive the loss of an Availability Zone with no manual intervention._
 
 ## Architecture
-Route 53 → CloudFront (+ WAF) → ALB (public subnets, 2 AZs) → EC2 Auto Scaling group
-(private app subnets) → RDS PostgreSQL Multi-AZ (private data subnets). Static assets in S3
-via Origin Access Control. Secrets in Secrets Manager. No SSH; access through SSM Session Manager.
+Viewer → **CloudFront** (HTTPS, AWS WAF) → *VPC origin* → **internal ALB** (private, 2 AZs) → **EC2 Auto Scaling
+group** (private app subnets) → **RDS PostgreSQL Multi-AZ** (private data subnets). DB credentials in
+Secrets Manager. No SSH; access through SSM Session Manager. **Nothing in the VPC has a public endpoint
+except the NAT Gateway, which is outbound only.**
 
 _Diagram: `docs/diagrams/01-ha-web-app.png`_
 
@@ -35,7 +36,7 @@ The default security group has no rules.
 - [x] RDS Multi-AZ + Secrets Manager
 - [x] Launch template, instance profile, ASG (min 2 / max 4, target tracking 60% CPU)
 - [x] ALB across both public subnets, health checks on `/health` (TLS comes with CloudFront in the next layer)
-- [ ] CloudFront + S3 origin + WAF managed rules
+- [x] CloudFront with a VPC origin to the internal ALB, AWS WAF (managed rules + per-IP rate limit), security headers
 - [ ] Failure tests: terminate instances, force RDS failover, load test
 
 ## Design decisions & trade-offs
@@ -67,8 +68,21 @@ The default security group has no rules.
   *replaced*, not just pulled from the load balancer. Checks run every 10s; 2 failures mark a target
   unhealthy (about 20s). `deregistration_delay` is 30s instead of the 300s default, so scale-in and
   instance refreshes don't stall.
-- **HTTPS deferred to CloudFront.** An ALB certificate needs a domain. CloudFront in front of the
-  ALB provides TLS on its own `*.cloudfront.net` certificate, and the ALB is then locked to CloudFront traffic only.
+- **CloudFront VPC origin to an *internal* ALB.** The older pattern is a public ALB restricted to
+  CloudFront's IP ranges plus a secret header. With a VPC origin the ALB has no public IP at all;
+  CloudFront reaches it over the AWS network through ENIs in the VPC. The ALB's security group has one
+  ingress rule: port 80 from AWS's managed `com.amazonaws.global.cloudfront.origin-facing` prefix list
+  (which counts as about 55 of the security group's 60 rules).
+- **TLS at the edge, no domain needed.** CloudFront's default `*.cloudfront.net` certificate serves
+  HTTPS, HTTP redirects to HTTPS, and the `Managed-SecurityHeadersPolicy` adds HSTS,
+  X-Content-Type-Options and X-Frame-Options. CloudFront → ALB is HTTP but never leaves the AWS network.
+  With a custom domain: ACM certificate in us-east-1 + Route 53 alias.
+- **WAF at the edge, not on the ALB.** Blocked requests never reach the VPC. Rules, in order: per-IP
+  rate limit (500 requests / 5 min), Amazon IP reputation list, Core Rule Set (OWASP-style), Known
+  Bad Inputs (for example Log4Shell). The web ACL is created in us-east-1 through a provider alias,
+  since CloudFront-scoped WAF must live there even when the stack runs elsewhere (Project 03).
+- **Caching disabled** (`Managed-CachingDisabled`): every response is dynamic. A static-asset
+  behavior with caching would be the next step for a real frontend.
 - _EC2 vs. ECS Fargate_
 
 ## Results
@@ -79,18 +93,25 @@ The default security group has no rules.
 | Replacement instance | The ASG launched `i-02ef…` in us-east-1b; it passed health checks and served 23 requests before the probe ended. |
 | Instance removed gracefully: `terminate-instance-in-auto-scaling-group` (2026-11-06) | **100.00%** over a 180 s probe: 301/301 OK, no failures. The ASG deregistered the target (30 s drain) before stopping it, then launched replacement `i-0cbad…` in us-east-1b, which served 53 requests. |
 | RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
-| Scale-out under load | _ → _ instances |
+| Edge controls (2026-11-06) | ✅ HTTPS 200, HTTP→301, XSS→403 (WAF), security headers present, ALB unreachable from the internet |
+| Scale-out under load | _ → _ instances (optional: load test) |
 
 ## Deploy / destroy
 ```bash
 cd 01-ha-web-app
 terraform init -backend-config="bucket=bernard-tfstate-40b007"
 terraform apply
-terraform destroy   # at the end of every session; the NAT Gateway bills hourly
+terraform destroy
 ```
+Destroy at the end of every session; the NAT Gateway, RDS and ALB bill hourly. Destroying takes
+15–25 minutes, because CloudFront must disable the distribution and remove the VPC origin's network
+interfaces. If it stops with `DependencyViolation` on a subnet or the VPC, CloudFront is still
+cleaning up its interfaces: wait 5 minutes and run `terraform destroy` again.
 
 Approximate running cost with everything on: NAT Gateway about $1.20/day, RDS Multi-AZ about $0.90/day,
-ALB about $0.55/day, 2 × t4g.micro about $0.40/day. **About $3/day in total.** Cheaper options while building:
+ALB about $0.55/day, 2 × t4g.micro about $0.40/day, WAF about $0.30/day ($5 per web ACL + $1 per rule
+per month, prorated). CloudFront and the VPC origin cost nothing at this traffic level.
+**About $3.30/day in total.** Cheaper options while building:
 ```bash
 terraform apply -var="db_multi_az=false"          # single-AZ DB, about half the DB cost
 terraform apply -var="enable_nat_gateway=false"   # no NAT; fine until the app tier exists
@@ -125,8 +146,33 @@ First-call latency was about 438 ms, which includes the Secrets Manager fetch an
 ```bash
 terraform output -raw app_url
 ```
-Open that URL in a browser and refresh a few times. The instance ID and AZ change as the load balancer
-alternates between the two instances. `/db` shows the database check.
+Open that `https://….cloudfront.net` URL in a browser and refresh a few times. The instance ID and AZ
+change as the load balancer alternates between the two instances. `/db` shows the database check.
+The first `apply` takes about 15–25 minutes; the CloudFront VPC origin is the slow part.
+
+### Prove the edge controls
+```bash
+URL=$(terraform output -raw app_url)
+curl -s -o /dev/null -w '%{http_code}\n' "$URL/health"
+curl -s -o /dev/null -w '%{http_code}\n' "${URL/https/http}/health"
+curl -s -o /dev/null -w '%{http_code}\n' "$URL/?q=<script>alert(1)</script>"
+curl -sI "$URL/" | grep -i -E 'strict-transport|x-frame|x-content-type'
+curl -s -m 5 "http://$(terraform output -raw alb_dns_name)/health" || echo "ALB unreachable from the internet"
+```
+Expected: `200`, then `301` (HTTP redirects to HTTPS), then `403` (WAF blocked the XSS), then the
+security headers, then "ALB unreachable".
+
+**Result (2026-11-06):**
+
+| Check | Expected | Got |
+|---|---|---|
+| HTTPS via CloudFront | 200 | ✅ 200 |
+| Plain HTTP | 301 → HTTPS | ✅ 301 |
+| `?q=<script>alert(1)</script>` | 403 from WAF | ✅ 403 |
+| Security headers | HSTS, X-Frame-Options, X-Content-Type-Options | ✅ `max-age=31536000`, `SAMEORIGIN`, `nosniff` |
+| ALB reached directly from the internet | unreachable | ✅ unreachable (resolves to private IPs) | The ALB's DNS name resolves to private 10.0.x.x addresses.
+Blocked requests appear in **WAF & Shield → Web ACLs → ha-web-app-edge → Sampled requests**
+(choose the Global/CloudFront region).
 
 ### Availability test: kill an instance
 Terminal 1, the probe (2 requests/second for 3 minutes, then a summary):
