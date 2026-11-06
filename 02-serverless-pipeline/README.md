@@ -109,7 +109,8 @@ run's path through the graph.
 | Sample run (2026-11-06) | ✅ clean → `COMPLETE` (10 rows, 2 racks, 0 issues) · issues → `COMPLETE` (8 rows, **all 5 issues found**) · `.txt` → `FAILED` (`ValidationError`), 1 message in the DLQ |
 | Duplicate upload (same key + same content → same ETag) | ✅ execution ended in the `Duplicate` state (`SucceedStateExited Duplicate`); stored result untouched |
 | DLQ alarm | ✅ `ALARM` within about 1 minute of the bad file: "1 datapoint [1.0] was greater than the threshold (0.0)" |
-| Query API: signed vs unsigned | _ |
+| Query API (2026-11-06) | ✅ SigV4-signed → **200** with results and parsed analysis (for example, clean file: 10 rows, 2 racks, 0 issues) · unsigned → **403 Forbidden** |
+| Adding the `by-key` GSI to a live table | In-place update, 8 m 37 s (index backfilled before apply returned), 0 resources destroyed |
 | Burst: 500 files | _ |
 | Cost per 1,000 documents | _ |
 
