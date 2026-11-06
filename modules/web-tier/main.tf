@@ -121,9 +121,11 @@ resource "aws_autoscaling_group" "app" {
   # desired_capacity left unset: it starts at min_size, then target tracking owns it.
   # Setting it here would make every terraform apply undo a scale-out.
 
-  health_check_type         = var.health_check_type
+  # ELB health checks: an instance that stops answering /health is replaced,
+  # not just taken out of the load balancer.
+  health_check_type         = "ELB"
   health_check_grace_period = 300
-  target_group_arns         = var.target_group_arns
+  target_group_arns         = [aws_lb_target_group.app.arn]
 
   launch_template {
     id      = aws_launch_template.app.id

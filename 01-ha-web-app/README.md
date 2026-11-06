@@ -1,6 +1,6 @@
 # 01 · Highly available multi-tier web app
 
-> **Status:** 🚧 In progress: network, security groups, database and compute done
+> **Status:** 🚧 In progress: network, security groups, database, compute and load balancer done
 
 ## Problem
 _A business-critical app must survive the loss of an Availability Zone with no manual intervention._
@@ -34,7 +34,7 @@ The default security group has no rules.
 - [x] Security groups chained ALB → app → DB
 - [x] RDS Multi-AZ + Secrets Manager
 - [x] Launch template, instance profile, ASG (min 2 / max 4, target tracking 60% CPU)
-- [ ] ALB + ACM cert + HTTP→HTTPS redirect, health checks on `/health`
+- [x] ALB across both public subnets, health checks on `/health` (TLS comes with CloudFront in the next layer)
 - [ ] CloudFront + S3 origin + WAF managed rules
 - [ ] Failure tests: terminate instances, force RDS failover, load test
 
@@ -63,13 +63,20 @@ The default security group has no rules.
   (at least 50% healthy) replaces instances when the template changes.
 - **`desired_capacity` is left unset** so `terraform apply` never undoes a scale-out by the target
   tracking policy.
+- **ELB health checks on the Auto Scaling group.** An instance that stops answering `/health` is
+  *replaced*, not just pulled from the load balancer. Checks run every 10s; 2 failures mark a target
+  unhealthy (about 20s). `deregistration_delay` is 30s instead of the 300s default, so scale-in and
+  instance refreshes don't stall.
+- **HTTPS deferred to CloudFront.** An ALB certificate needs a domain. CloudFront in front of the
+  ALB provides TLS on its own `*.cloudfront.net` certificate, and the ALB is then locked to CloudFront traffic only.
 - _EC2 vs. ECS Fargate_
 
 ## Results
 | Test | Measured |
 |------|----------|
 | App tier reachable via SSM, DB check from both AZs | ✅ 2026-11-06: `/health` ok, `/db` ok (PostgreSQL 17.9, TLS) |
-| Instance termination → replaced | _ min |
+| Instance terminated → availability during test | _% (longest failure window _ s) |
+| Instance terminated → replacement healthy in target group | _ min |
 | RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
 | Scale-out under load | _ → _ instances |
 
@@ -81,8 +88,8 @@ terraform apply
 terraform destroy   # at the end of every session; the NAT Gateway bills hourly
 ```
 
-Approximate running cost with everything on: NAT Gateway about $1.20/day plus RDS Multi-AZ
-about $0.90/day. Cheaper options while building:
+Approximate running cost with everything on: NAT Gateway about $1.20/day, RDS Multi-AZ about $0.90/day,
+ALB about $0.55/day, 2 × t4g.micro about $0.40/day. **About $3/day in total.** Cheaper options while building:
 ```bash
 terraform apply -var="db_multi_az=false"          # single-AZ DB, about half the DB cost
 terraform apply -var="enable_nat_gateway=false"   # no NAT; fine until the app tier exists
@@ -112,6 +119,28 @@ The boot log is in `/var/log/app-bootstrap.log`.
 **Result (2026-11-06):** 2 instances (us-east-1a, us-east-1b), both `Healthy`. On both, `/health` returned
 `ok` and `/db` returned `"ok": true`, connected over TLS to PostgreSQL 17.9 at `10.0.20.211` (data subnet, AZ a).
 First-call latency was about 438 ms, which includes the Secrets Manager fetch and TLS setup. Later calls reuse the cached credentials.
+
+### Open the app
+```bash
+terraform output -raw app_url
+```
+Open that URL in a browser and refresh a few times. The instance ID and AZ change as the load balancer
+alternates between the two instances. `/db` shows the database check.
+
+### Availability test: kill an instance
+Terminal 1, the probe (2 requests/second for 3 minutes, then a summary):
+```bash
+./scripts/availability-test.sh
+```
+Terminal 2, about 20 seconds in, terminate one instance without warning:
+```bash
+ASG=$(terraform output -raw asg_name)
+VICTIM=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG \
+  --query 'AutoScalingGroups[0].Instances[0].InstanceId' --output text)
+aws ec2 terminate-instances --instance-ids $VICTIM
+```
+Watch the ASG launch a replacement in **EC2 → Auto Scaling groups → Activity**, and the new target go
+`initial` → `healthy` in **EC2 → Target groups → Targets**. Record the probe's summary below.
 
 ### Failover test (RDS)
 ```bash

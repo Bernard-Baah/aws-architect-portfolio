@@ -40,21 +40,18 @@ variable "cpu_target_percent" {
   default     = 60
 }
 
-variable "health_check_type" {
-  description = "EC2 until a load balancer is attached, then ELB"
-  type        = string
-  default     = "EC2"
-
-  validation {
-    condition     = contains(["EC2", "ELB"], var.health_check_type)
-    error_message = "health_check_type must be EC2 or ELB."
-  }
+variable "vpc_id" {
+  type = string
 }
 
-variable "target_group_arns" {
-  description = "Load balancer target groups to register instances with"
+variable "public_subnet_ids" {
+  description = "Public subnets (one per AZ) for the load balancer"
   type        = list(string)
-  default     = []
+}
+
+variable "alb_security_group_ids" {
+  description = "Security groups for the load balancer"
+  type        = list(string)
 }
 
 variable "db_host" {
