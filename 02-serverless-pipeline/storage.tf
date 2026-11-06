@@ -102,10 +102,23 @@ resource "aws_dynamodb_table" "documents" {
     type = "S"
   }
 
+  attribute {
+    name = "object_key"
+    type = "S"
+  }
+
   # "Show me everything that FAILED, newest first" without a table scan
   global_secondary_index {
     name            = "by-status"
     hash_key        = "status"
+    range_key       = "created_at"
+    projection_type = "ALL"
+  }
+
+  # "Show me every processed version of this file" (used by the query API)
+  global_secondary_index {
+    name            = "by-key"
+    hash_key        = "object_key"
     range_key       = "created_at"
     projection_type = "ALL"
   }

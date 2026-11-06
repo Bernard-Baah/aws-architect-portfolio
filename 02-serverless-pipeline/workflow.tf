@@ -34,8 +34,9 @@ data "aws_iam_policy_document" "workflow" {
     sid     = "InvokeFunctions"
     actions = ["lambda:InvokeFunction"]
 
+    # Only the pipeline's own steps; not the query API
     resources = flatten([
-      for fn in aws_lambda_function.fn : [fn.arn, "${fn.arn}:*"]
+      for k in ["validate", "analyze"] : [aws_lambda_function.fn[k].arn, "${aws_lambda_function.fn[k].arn}:*"]
     ])
   }
 

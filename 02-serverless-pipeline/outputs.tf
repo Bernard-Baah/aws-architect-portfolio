@@ -22,3 +22,8 @@ output "dlq_url" {
 output "topic_arn" {
   value = aws_sns_topic.events.arn
 }
+
+output "api_url" {
+  description = "IAM-authorized; see scripts/query-api.sh"
+  value       = "${aws_apigatewayv2_stage.default.invoke_url}documents"
+}

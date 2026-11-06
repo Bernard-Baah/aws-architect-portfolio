@@ -1,4 +1,4 @@
-# Two small Python functions, each with its own least-privilege role.
+# Small Python functions, each with its own least-privilege role.
 # Storing results, notifying and dead-lettering are done by Step Functions'
 # direct service integrations, so there's no Lambda "glue" code for them.
 
@@ -12,6 +12,11 @@ locals {
     analyze = {
       description = "Parses a rack-inventory CSV and reports data-quality issues"
       timeout     = 30
+      memory      = 256
+    }
+    api = {
+      description = "Read-only query API over the results table"
+      timeout     = 10
       memory      = 256
     }
   }
@@ -82,6 +87,24 @@ resource "aws_iam_role_policy" "analyze_read" {
   policy = data.aws_iam_policy_document.analyze_read.json
 }
 
+# The API can only query this table's indexes and read single items
+data "aws_iam_policy_document" "api_read" {
+  statement {
+    actions = ["dynamodb:Query", "dynamodb:GetItem"]
+
+    resources = [
+      aws_dynamodb_table.documents.arn,
+      "${aws_dynamodb_table.documents.arn}/index/*",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "api_read" {
+  name   = "read-results"
+  role   = aws_iam_role.fn["api"].id
+  policy = data.aws_iam_policy_document.api_read.json
+}
+
 resource "aws_cloudwatch_log_group" "fn" {
   for_each = local.functions
 
@@ -102,6 +125,14 @@ resource "aws_lambda_function" "fn" {
   source_code_hash = data.archive_file.fn[each.key].output_base64sha256
   timeout          = each.value.timeout
   memory_size      = each.value.memory
+
+  dynamic "environment" {
+    for_each = each.key == "api" ? [1] : []
+
+    content {
+      variables = { TABLE_NAME = aws_dynamodb_table.documents.name }
+    }
+  }
 
   logging_config {
     log_format = "Text"
