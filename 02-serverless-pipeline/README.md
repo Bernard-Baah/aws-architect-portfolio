@@ -88,7 +88,7 @@ run's path through the graph.
 ## Results
 | Test | Measured |
 |------|----------|
-| Sample run (clean, issues, invalid) | _ |
+| Sample run (2026-11-06) | ✅ clean → `COMPLETE` (10 rows, 2 racks, 0 issues) · issues → `COMPLETE` (8 rows, **all 5 issues found**) · `.txt` → `FAILED` (`ValidationError`), 1 message in the DLQ |
 | Duplicate event (same upload twice) | _ |
 | Burst: 500 files | _ |
 | Cost per 1,000 documents | _ |

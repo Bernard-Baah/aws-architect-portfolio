@@ -35,6 +35,6 @@ aws dynamodb scan --table-name "$TABLE" \
   || echo "  (not finished yet: rerun the scan in a few seconds)"
 
 echo
-echo -n "Messages in the dead-letter queue: "
-aws sqs get-queue-attributes --queue-url "$DLQ" \
-  --attribute-names ApproximateNumberOfMessages --query 'Attributes.ApproximateNumberOfMessages' --output text
+DEPTH=$(aws sqs get-queue-attributes --queue-url "$DLQ" \
+  --attribute-names ApproximateNumberOfMessages --query 'Attributes.ApproximateNumberOfMessages' --output text | tr -d '\r\n')
+echo "Messages in the dead-letter queue: $DEPTH"
