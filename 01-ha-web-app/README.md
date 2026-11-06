@@ -68,6 +68,7 @@ The default security group has no rules.
 ## Results
 | Test | Measured |
 |------|----------|
+| App tier reachable via SSM, DB check from both AZs | ✅ 2026-11-06: `/health` ok, `/db` ok (PostgreSQL 17.9, TLS) |
 | Instance termination → replaced | _ min |
 | RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
 | Scale-out under load | _ → _ instances |
@@ -89,24 +90,28 @@ terraform apply -var="enable_nat_gateway=false"   # no NAT; fine until the app t
 
 ### Check the app tier (before the load balancer exists)
 Instances take about 3–5 minutes after `apply` to install packages and register with SSM.
+Works in zsh and bash:
 ```bash
 ASG=$(terraform output -raw asg_name)
-IDS=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG \
-  --query 'AutoScalingGroups[0].Instances[].[InstanceId,AvailabilityZone]' --output text)
-echo "$IDS"                       # expect 2 instances, one per AZ
-IDS=$(echo "$IDS" | awk '{print $1}' | xargs)
-CMD=$(aws ssm send-command --document-name AWS-RunShellScript --instance-ids $IDS \
+aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG \
+  --query 'AutoScalingGroups[0].Instances[].[InstanceId,AvailabilityZone,HealthStatus]' --output text
+IDS=( $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG \
+  --query 'AutoScalingGroups[0].Instances[].InstanceId' --output text) )
+CMD=$(aws ssm send-command --document-name AWS-RunShellScript --instance-ids "${IDS[@]}" \
   --parameters 'commands=["curl -s localhost:8080/health; echo; curl -s localhost:8080/db"]' \
   --query Command.CommandId --output text)
-sleep 8
-for i in $IDS; do
-  aws ssm get-command-invocation --command-id $CMD --instance-id $i \
-    --query StandardOutputContent --output text
+sleep 10
+for i in "${IDS[@]}"; do
+  echo "== $i"
+  aws ssm get-command-invocation --command-id $CMD --instance-id $i --query StandardOutputContent --output text
 done
 ```
-Each instance should return `{"status": "ok", ...}` and `{"ok": true, "latency_ms": ..., "db_version": "PostgreSQL 17..."}`.
 For an interactive shell: **Systems Manager → Session Manager → Start session**, then pick an instance.
 The boot log is in `/var/log/app-bootstrap.log`.
+
+**Result (2026-11-06):** 2 instances (us-east-1a, us-east-1b), both `Healthy`. On both, `/health` returned
+`ok` and `/db` returned `"ok": true`, connected over TLS to PostgreSQL 17.9 at `10.0.20.211` (data subnet, AZ a).
+First-call latency was about 438 ms, which includes the Secrets Manager fetch and TLS setup. Later calls reuse the cached credentials.
 
 ### Failover test (RDS)
 ```bash
