@@ -93,7 +93,8 @@ The default security group has no rules.
 | Replacement instance | The ASG launched `i-02ef…` in us-east-1b; it passed health checks and served 23 requests before the probe ended. |
 | Instance removed gracefully: `terminate-instance-in-auto-scaling-group` (2026-11-06) | **100.00%** over a 180 s probe: 301/301 OK, no failures. The ASG deregistered the target (30 s drain) before stopping it, then launched replacement `i-0cbad…` in us-east-1b, which served 53 requests. |
 | RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
-| Scale-out under load | _ → _ instances |
+| Edge controls (2026-11-06) | ✅ HTTPS 200, HTTP→301, XSS→403 (WAF), security headers present, ALB unreachable from the internet |
+| Scale-out under load | _ → _ instances (optional: load test) |
 
 ## Deploy / destroy
 ```bash
@@ -159,7 +160,17 @@ curl -sI "$URL/" | grep -i -E 'strict-transport|x-frame|x-content-type'
 curl -s -m 5 "http://$(terraform output -raw alb_dns_name)/health" || echo "ALB unreachable from the internet"
 ```
 Expected: `200`, then `301` (HTTP redirects to HTTPS), then `403` (WAF blocked the XSS), then the
-security headers, then "ALB unreachable". The ALB's DNS name resolves to private 10.0.x.x addresses.
+security headers, then "ALB unreachable".
+
+**Result (2026-11-06):**
+
+| Check | Expected | Got |
+|---|---|---|
+| HTTPS via CloudFront | 200 | ✅ 200 |
+| Plain HTTP | 301 → HTTPS | ✅ 301 |
+| `?q=<script>alert(1)</script>` | 403 from WAF | ✅ 403 |
+| Security headers | HSTS, X-Frame-Options, X-Content-Type-Options | ✅ `max-age=31536000`, `SAMEORIGIN`, `nosniff` |
+| ALB reached directly from the internet | unreachable | ✅ unreachable (resolves to private IPs) | The ALB's DNS name resolves to private 10.0.x.x addresses.
 Blocked requests appear in **WAF & Shield → Web ACLs → ha-web-app-edge → Sampled requests**
 (choose the Global/CloudFront region).
 

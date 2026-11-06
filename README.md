@@ -11,8 +11,8 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 
 | # | Project | What it proves | Status |
 |---|---------|----------------|--------|
-| 0 | [Shared setup](00-setup/) | Remote state, CI with OIDC, budgets | 🚧 In progress |
-| 1 | [HA multi-tier web app](01-ha-web-app/) | VPC design, Multi-AZ HA, IaC | ⏳ Planned |
+| 0 | [Shared setup](00-setup/) | Remote state, CI with OIDC (immutable repo IDs), PR annotations for fmt/validate errors | ✅ Done |
+| 1 | [HA multi-tier web app](01-ha-web-app/) | CloudFront + WAF → internal ALB → ASG → RDS Multi-AZ. Measured: 100% availability on graceful replacement, 96.5% on instance crash, 40 s DB failover | ✅ Done |
 | 2 | [Serverless event-driven pipeline](02-serverless-pipeline/) | Decoupling, async design, failure handling | ⏳ Planned |
 | 3 | [Multi-region disaster recovery](03-multi-region-dr/) | Warm standby, measured RTO/RPO, game days | ⏳ Planned |
 | 4 | [Multi-account landing zone](04-landing-zone/) | Organizations, SCPs, central logging, detection | ⏳ Planned |
