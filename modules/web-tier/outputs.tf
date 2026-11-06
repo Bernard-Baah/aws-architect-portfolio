@@ -1,5 +1,5 @@
-output "app_url" {
-  value = "http://${aws_lb.app.dns_name}"
+output "alb_arn" {
+  value = aws_lb.app.arn
 }
 
 output "alb_dns_name" {

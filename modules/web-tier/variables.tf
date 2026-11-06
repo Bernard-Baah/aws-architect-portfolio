@@ -44,8 +44,8 @@ variable "vpc_id" {
   type = string
 }
 
-variable "public_subnet_ids" {
-  description = "Public subnets (one per AZ) for the load balancer"
+variable "alb_subnet_ids" {
+  description = "Subnets (one per AZ) for the internal load balancer"
   type        = list(string)
 }
 

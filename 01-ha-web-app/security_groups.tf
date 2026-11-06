@@ -1,34 +1,33 @@
 # Security groups chained by reference, not by IP range:
 #
-#   internet --443/80--> ALB --app_port--> app instances --5432--> RDS
+#   CloudFront --80--> internal ALB --app_port--> app instances --5432--> RDS
 #
-# Each tier only accepts traffic from the security group in front of it, so an
-# instance can't reach the database just because it sits in the VPC.
+# Each tier only accepts traffic from the thing in front of it, so an instance
+# can't reach the database just because it sits in the VPC. Nothing in this
+# VPC accepts traffic from the internet directly.
 # Standalone rule resources avoid circular references between the groups.
 
 # ---------------------------------------------------------------- ALB
 
+# AWS-maintained list of the IP ranges CloudFront uses to reach origins
+# (including VPC origins). It counts as ~55 rules against the security group's
+# 60-rule quota, which is why the ALB has exactly one ingress rule.
+data "aws_ec2_managed_prefix_list" "cloudfront_origin_facing" {
+  name = "com.amazonaws.global.cloudfront.origin-facing"
+}
+
 resource "aws_security_group" "alb" {
   name        = "${var.name}-alb"
-  description = "Public load balancer: HTTPS/HTTP from the internet"
+  description = "Internal load balancer: HTTP from CloudFront only"
   vpc_id      = module.network.vpc_id
 
   tags = { Name = "${var.name}-alb" }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "alb_https" {
+resource "aws_vpc_security_group_ingress_rule" "alb_from_cloudfront" {
   security_group_id = aws_security_group.alb.id
-  description       = "HTTPS from anywhere"
-  cidr_ipv4         = "0.0.0.0/0"
-  ip_protocol       = "tcp"
-  from_port         = 443
-  to_port           = 443
-}
-
-resource "aws_vpc_security_group_ingress_rule" "alb_http" {
-  security_group_id = aws_security_group.alb.id
-  description       = "HTTP from anywhere (redirected to HTTPS by the listener)"
-  cidr_ipv4         = "0.0.0.0/0"
+  description       = "HTTP from CloudFront (VPC origin) only"
+  prefix_list_id    = data.aws_ec2_managed_prefix_list.cloudfront_origin_facing.id
   ip_protocol       = "tcp"
   from_port         = 80
   to_port           = 80

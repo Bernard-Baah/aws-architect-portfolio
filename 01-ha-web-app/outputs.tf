@@ -52,8 +52,21 @@ output "db_multi_az" {
 }
 
 output "app_url" {
-  description = "Open this in a browser"
-  value       = module.web_tier.app_url
+  description = "Open this in a browser (HTTPS via CloudFront)"
+  value       = module.edge.url
+}
+
+output "cloudfront_distribution_id" {
+  value = module.edge.distribution_id
+}
+
+output "waf_web_acl" {
+  value = module.edge.web_acl_name
+}
+
+output "alb_dns_name" {
+  description = "Internal only: resolves to private IPs, unreachable from the internet"
+  value       = module.web_tier.alb_dns_name
 }
 
 output "asg_name" {
