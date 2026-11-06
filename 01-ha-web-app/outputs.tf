@@ -51,6 +51,11 @@ output "db_multi_az" {
   value = module.database.multi_az
 }
 
+output "app_url" {
+  description = "Open this in a browser"
+  value       = module.web_tier.app_url
+}
+
 output "asg_name" {
   value = module.web_tier.asg_name
 }
