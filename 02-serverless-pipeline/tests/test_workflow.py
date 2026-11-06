@@ -75,6 +75,32 @@ class WorkflowTests(unittest.TestCase):
             self.assertNotIn("ValidationError", retry["ErrorEquals"])
             self.assertNotIn("States.ALL", retry["ErrorEquals"])
 
+    def test_throttling_gets_a_long_capped_retry(self):
+        # A 500-file burst on an account with low Lambda concurrency must not
+        # exhaust retries and dead-letter good files.
+        for name in ("Validate", "Analyze"):
+            retries = self.states[name]["Retry"]
+            throttle = [r for r in retries if r["ErrorEquals"] == ["Lambda.TooManyRequestsException"]]
+            self.assertEqual(len(throttle), 1, name)
+            r = throttle[0]
+            self.assertGreaterEqual(r["MaxAttempts"], 8, name)
+            self.assertLessEqual(r["MaxDelaySeconds"], 60, name)
+            self.assertEqual(r["JitterStrategy"], "FULL", name)
+            # throttling is listed first so it isn't absorbed by a broader retrier
+            self.assertIs(retries[0], r, name)
+
+    def test_worst_case_throttle_retry_window_is_bounded(self):
+        r = next(x for x in self.states["Analyze"]["Retry"] if x["ErrorEquals"] == ["Lambda.TooManyRequestsException"])
+        waits = [min(r["IntervalSeconds"] * r["BackoffRate"] ** i, r["MaxDelaySeconds"]) for i in range(r["MaxAttempts"])]
+        self.assertLess(sum(waits), 300)   # under 5 minutes before giving up
+        self.assertGreater(sum(waits), 60)  # long enough to ride out a burst
+
+    def test_failed_items_can_be_reprocessed_but_others_cannot(self):
+        p = self.states["RecordReceived"]["Parameters"]
+        self.assertEqual(p["ConditionExpression"], "attribute_not_exists(doc_id) OR #s = :failed")
+        self.assertEqual(p["ExpressionAttributeNames"], {"#s": "status"})
+        self.assertEqual(p["ExpressionAttributeValues"], {":failed": {"S": "FAILED"}})
+
     def test_duplicates_are_caught_before_the_generic_catch(self):
         catches = self.states["RecordReceived"]["Catch"]
         self.assertEqual(catches[0]["ErrorEquals"], ["DynamoDB.ConditionalCheckFailedException"])
@@ -85,21 +111,23 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(self.states["SendToDLQ"]["Next"], "ProcessingFailed")
         self.assertEqual(self.states["ProcessingFailed"]["Type"], "Fail")
 
-    def test_reserved_words_are_aliased_in_update_expressions(self):
+    def test_reserved_words_are_aliased_in_expressions(self):
         # 'status' and 'result' are DynamoDB reserved words.
         for name in ("StoreResult", "MarkFailed"):
             expr = self.states[name]["Parameters"]["UpdateExpression"]
             self.assertNotRegex(expr, r"\bstatus\s*=", name)
             self.assertNotRegex(expr, r"\bresult\s*=", name)
 
-    def test_update_expression_placeholders_are_all_defined(self):
-        for name in ("StoreResult", "MarkFailed"):
+    def test_expression_placeholders_are_all_defined(self):
+        for name in ("StoreResult", "MarkFailed", "RecordReceived"):
             p = self.states[name]["Parameters"]
-            expr = p["UpdateExpression"]
+            expr = p.get("UpdateExpression", "") + " " + p.get("ConditionExpression", "")
             for ph in set(re.findall(r":\w+", expr)):
                 self.assertIn(ph, p["ExpressionAttributeValues"], f"{name}: {ph}")
             for ph in set(re.findall(r"#\w+", expr)):
                 self.assertIn(ph, p["ExpressionAttributeNames"], f"{name}: {ph}")
+            # and nothing defined that the expressions don't use
+            self.assertEqual(set(p.get("ExpressionAttributeValues", {})), set(re.findall(r":\w+", expr)), name)
 
 
 if __name__ == "__main__":

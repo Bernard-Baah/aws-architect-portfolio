@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Replay retryable dead-letter queue messages through the workflow.
+# Run from 02-serverless-pipeline/ after the underlying problem is fixed.
+#
+#   ./scripts/redrive-dlq.sh            # replay retryable, remove invalid-file messages
+#   ./scripts/redrive-dlq.sh --dry-run  # show what would happen, change nothing
+#
+# Retryable messages start a fresh execution with the original S3 event (the
+# workflow allows FAILED items to be reprocessed). Messages for invalid files
+# are removed after printing: their FAILED record stays in DynamoDB.
+# Works with bash 3.2 (macOS).
+set -euo pipefail
+
+DRY=0
+[ "${1:-}" = "--dry-run" ] && DRY=1
+DLQ=$(terraform output -raw dlq_url)
+SM=$(terraform output -raw state_machine_arn)
+TMP=$(mktemp -d -t redrive.XXXXXX)
+retried=0; skipped=0
+
+while :; do
+  aws sqs receive-message --queue-url "$DLQ" --max-number-of-messages 10 \
+    --wait-time-seconds 2 --visibility-timeout 60 --output json > "$TMP/batch.json"
+  count=$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1])).get("Messages", [])))' "$TMP/batch.json" 2>/dev/null || echo 0)
+  [ "$count" = "0" ] && break
+
+  i=0
+  while [ "$i" -lt "$count" ]; do
+    python3 -c 'import json,sys; m=json.load(open(sys.argv[1]))["Messages"][int(sys.argv[2])]; open(sys.argv[3],"w").write(m["Body"]); print(m["ReceiptHandle"])' \
+      "$TMP/batch.json" "$i" "$TMP/body.json" > "$TMP/receipt"
+    python3 scripts/dlq_message.py < "$TMP/body.json" > "$TMP/decision.json"
+    action=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["action"])' "$TMP/decision.json")
+    summary=$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d["key"], "|", d["reason"])' "$TMP/decision.json")
+
+    if [ "$action" = "retry" ]; then
+      echo "RETRY  $summary"
+      if [ "$DRY" = 0 ]; then
+        python3 -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["input"]))' "$TMP/decision.json" > "$TMP/input.json"
+        aws stepfunctions start-execution --state-machine-arn "$SM" --input "file://$TMP/input.json" \
+          --query executionArn --output text | sed 's/^/       started /'
+      fi
+      retried=$((retried + 1))
+    else
+      echo "SKIP   $summary"
+      skipped=$((skipped + 1))
+    fi
+
+    if [ "$DRY" = 0 ]; then
+      aws sqs delete-message --queue-url "$DLQ" --receipt-handle "$(cat "$TMP/receipt")"
+    fi
+    i=$((i + 1))
+  done
+  # In a dry run the messages come back after the visibility timeout; one pass is enough.
+  [ "$DRY" = 1 ] && break
+done
+
+echo
+echo "Replayed: $retried   Removed as invalid input: $skipped   (dry run: $([ "$DRY" = 1 ] && echo yes || echo no))"
+if [ "$DRY" = 0 ]; then
+  echo "Replayed files that fail again return to the DLQ with a new message."
+fi

@@ -1,6 +1,6 @@
 # 02 · Serverless event-driven pipeline
 
-> **Status:** 🚧 In progress: pipeline and query API built; burst test next
+> **Status:** 🚧 Final layer: burst test and DLQ redrive tooling built, results pending
 
 ## Problem
 _Data center teams export rack inventories as CSV files, and bad rows (duplicate asset tags, missing
@@ -42,17 +42,20 @@ Decommissioned devices don't count as occupying a rack unit.
 - [x] Least-privilege role per function, idempotency, X-Ray tracing
 - [x] Unit tests: handlers + workflow structure (run in CI)
 - [x] API Gateway HTTP API to query results (IAM auth, throttling, access logs, GSI queries only)
-- [ ] Burst test (500 files) and DLQ redrive
+- [x] Burst test tooling (500 generated files) and DLQ redrive tool + incident drill
 
 ## Design decisions & trade-offs
 - **Step Functions direct integrations instead of Lambda glue.** Writing to DynamoDB, publishing to SNS
   and sending to SQS are done by the state machine itself. Only two functions contain real logic, so
   there's less code, fewer cold starts, and one less IAM role per step.
 - **Idempotency with a conditional write.** S3 → EventBridge delivery is at-least-once. `doc_id` is
-  `key#etag`, and `RecordReceived` uses `attribute_not_exists(doc_id)`. A repeated event ends in the
-  `Duplicate` state, while a *new version* of the same file name (new ETag) is processed again.
-- **Retry only what can succeed on retry.** Lambda service errors and DynamoDB throttling are retried
-  with exponential backoff and full jitter. `ValidationError` and `SchemaError` go straight to the DLQ,
+  `key#etag`, and `RecordReceived` uses `attribute_not_exists(doc_id) OR status = FAILED`. A repeated
+  event for a file that is `PROCESSING` or `COMPLETE` ends in the `Duplicate` state. A *new version* of
+  the file (new ETag), or a DLQ redrive of a `FAILED` one, is processed again.
+- **Retry only what can succeed on retry.** Lambda *throttling* gets its own long policy (up to 10
+  attempts, each wait capped at 30 s, about 3 minutes worst case), so a burst on an account with low
+  Lambda concurrency slows down instead of dead-lettering good files. Other Lambda service errors and
+  DynamoDB throttling get short exponential backoff. All retries use full jitter. `ValidationError` and `SchemaError` go straight to the DLQ,
   because a bad file stays bad.
 - **Nothing is dropped.** Workflow failures go to the DLQ with full context (event, document, error),
   and the item is marked `FAILED`. EventBridge has its own retry policy and dead-letter config pointing
@@ -103,6 +106,44 @@ The last one should return **403**: no credentials, no access.
 Watch it run: **Step Functions → State machines → inventory-pipeline → Executions** shows each
 run's path through the graph.
 
+## Burst test
+```bash
+./scripts/burst-test.sh        # 500 files; ./scripts/burst-test.sh 100 for a quick run
+```
+Generates 500 realistic inventory files (about 15,000 rows across 1–3 racks each; about 1 in 5 with a
+planted problem), uploads them in parallel, then reports:
+- files **lost** (must be 0) and the status counts
+- whether **every planted issue was found** (the generator's count must match the analyzer's)
+- time from upload to last result, and per-file latency (p50, p95, max)
+- Lambda max concurrency, **throttles** and average duration; Step Functions succeeded/failed
+- DLQ depth before and after (must not change: every generated file is valid)
+
+## Incident drill: throttled function → DLQ → fix → redrive
+Simulates a real outage: the analyze function can't run, files fail after their retries, and the
+on-call engineer fixes the cause and replays the dead-letter queue.
+
+1. **Break it.** Reserved concurrency 0 means every invoke is throttled:
+   ```bash
+   aws lambda put-function-concurrency --function-name inventory-pipeline-analyze --reserved-concurrent-executions 0
+   BUCKET=$(terraform output -raw upload_bucket)
+   aws s3 cp samples/rack-inventory-clean.csv s3://$BUCKET/incoming/drill/rack-inventory-clean.csv
+   ```
+   In **Step Functions → Executions**, the run sits in `Analyze` retrying for about 3 minutes, then
+   goes `MarkFailed → SendToDLQ`. The DLQ alarm goes to `ALARM`.
+2. **Fix it:**
+   ```bash
+   aws lambda delete-function-concurrency --function-name inventory-pipeline-analyze
+   ```
+3. **Redrive:**
+   ```bash
+   ./scripts/redrive-dlq.sh --dry-run
+   ./scripts/redrive-dlq.sh
+   ```
+   The throttled file is replayed (its `FAILED` record may be reprocessed) and ends `COMPLETE`.
+   `not-a-csv.txt` is skipped and removed, since replaying an invalid file can't help; its `FAILED`
+   record stays in DynamoDB. With the queue empty, the alarm returns to `OK` within a few minutes.
+4. **Confirm:** `./scripts/query-api.sh 'key=incoming/drill/rack-inventory-clean.csv'` shows `COMPLETE`.
+
 ## Results
 | Test | Measured |
 |------|----------|
@@ -112,6 +153,7 @@ run's path through the graph.
 | Query API (2026-11-06) | ✅ SigV4-signed → **200** with results and parsed analysis (for example, clean file: 10 rows, 2 racks, 0 issues) · unsigned → **403 Forbidden** |
 | Adding the `by-key` GSI to a live table | In-place update, 8 m 37 s (index backfilled before apply returned), 0 resources destroyed |
 | Burst: 500 files | _ |
+| Incident drill (throttle → DLQ → fix → redrive) | _ |
 | Cost per 1,000 documents | _ |
 
 ## Cost
@@ -124,7 +166,9 @@ idle, so `terraform destroy` is optional here.
 ```bash
 python3 -m unittest discover -s 02-serverless-pipeline/tests -v
 ```
-31 tests: the validate and analyze handlers against the sample files; the query API with a fake table
-(right index, newest first, internal fields hidden, pagination round-trip, input validation); and
-structural checks on the Step Functions definition (every transition valid, every state reachable,
-failures routed to the DLQ, validation errors never retried, DynamoDB reserved words aliased).
+38 tests: the validate and analyze handlers against the sample files; the query API with a fake table
+(right index, newest first, internal fields hidden, pagination round-trip, input validation); the DLQ
+redrive decisions (replay throttled files with only the original event, never replay invalid files);
+and structural checks on the Step Functions definition (every transition valid, every state reachable,
+failures routed to the DLQ, validation errors never retried, throttling retry long but bounded, FAILED
+items reprocessable, DynamoDB reserved words aliased, no unused expression values).
