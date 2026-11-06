@@ -31,17 +31,30 @@ jobs:
             exit 1
           fi
 
-      - name: terraform validate (every root module)
+      - name: terraform validate (every module)
         run: |
-          set -euo pipefail
+          set -uo pipefail
           # Any directory containing .tf files, excluding .terraform caches
           dirs=$(find . -name '*.tf' -not -path '*/.terraform/*' -exec dirname {} \; | sort -u)
+          failed=0
           for d in $dirs; do
             echo "::group::$d"
-            terraform -chdir="$d" init -backend=false -input=false >/dev/null
-            terraform -chdir="$d" validate
+            if ! terraform -chdir="$d" init -backend=false -input=false > /tmp/init.log 2>&1; then
+              cat /tmp/init.log
+              echo "::error title=terraform init failed::$d"
+              failed=1
+              echo "::endgroup::"
+              continue
+            fi
+            out=$(terraform -chdir="$d" validate -json)
+            echo "$out" | jq -r '.diagnostics[] | "\(.severity): \(.summary) \(.detail // "")"'
+            # Surface each error as a PR annotation on the right file and line
+            echo "$out" | jq -r --arg d "${d#./}" '.diagnostics[] | select(.severity=="error")
+              | "::error file=\($d)/\(.range.filename // ""),line=\(.range.start.line // 1),title=\(.summary)::\((.detail // "") | gsub("\n"; "%0A"))"'
+            [ "$(echo "$out" | jq -r .valid)" = "true" ] || failed=1
             echo "::endgroup::"
           done
+          exit $failed
 
   # Signs in to AWS through GitHub OIDC (no stored keys) and runs a read-only
   # terraform plan for every deployed stack. Skipped until the AWS_ROLE_ARN
