@@ -75,8 +75,8 @@ The default security group has no rules.
 | Test | Measured |
 |------|----------|
 | App tier reachable via SSM, DB check from both AZs | ✅ 2026-11-06: `/health` ok, `/db` ok (PostgreSQL 17.9, TLS) |
-| Instance terminated → availability during test | _% (longest failure window _ s) |
-| Instance terminated → replacement healthy in target group | _ min |
+| Instance terminated without warning (2026-11-06) | **96.50%** over a 180 s probe: 276/286 OK. 10 failures (6 × 502, 4 × timeout), all between 14:35:23 and 14:35:41 (about 18 s) and only on requests routed to the dead target. Longest run of consecutive failures: 4 s. |
+| Replacement instance | The ASG launched `i-02ef…` in us-east-1b; it passed health checks and served 23 requests before the probe ended. |
 | RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
 | Scale-out under load | _ → _ instances |
 
@@ -141,6 +141,15 @@ aws ec2 terminate-instances --instance-ids $VICTIM
 ```
 Watch the ASG launch a replacement in **EC2 → Auto Scaling groups → Activity**, and the new target go
 `initial` → `healthy` in **EC2 → Target groups → Targets**. Record the probe's summary below.
+
+**Reading the result.** An unannounced crash is the worst case. The ALB keeps routing some requests to
+the dead target until 2 consecutive health checks fail (2 × 10 s), so those requests get `502`
+(connection refused during shutdown) and then time out (instance gone). Requests to the healthy
+instance keep succeeding the whole time. Ways to shrink the window:
+- Faster health checks (5 s interval, threshold 2), so the window is about 10 s
+- Planned removals that drain first: `aws autoscaling terminate-instance-in-auto-scaling-group
+  --instance-id <id> --no-should-decrement-desired-capacity` deregisters the target before stopping
+  it, and should show 100%
 
 ### Failover test (RDS)
 ```bash
