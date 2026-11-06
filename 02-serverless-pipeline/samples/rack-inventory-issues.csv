@@ -1,0 +1,9 @@
+asset_tag,serial_number,rack,rack_unit,model,status
+DC1-00301,SN8F2K2001,R03,1,Graviton Server G2,in_service
+DC1-00302,,R03,2,Graviton Server G2,in_service
+DC1-00303,SN8F2K2003,R03,2,Graviton Server G2,in_service
+DC1-00304,SN8F2K2004,R03,52,Graviton Server G2,in_service
+DC1-00305,SN8F2K2005,R03,6,Graviton Server G2,broken
+DC1-00301,SN8F2K2006,R03,7,Graviton Server G2,spare
+DC1-00307,SN8F2K2007,R03,8,Graviton Server G2,rma
+DC1-00308,SN8F2K2008,R03,9,Graviton Server G2,decommissioned

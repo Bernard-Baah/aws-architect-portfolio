@@ -1,0 +1,197 @@
+{
+  "Comment": "Rack-inventory CSV pipeline: validate, record (idempotent), analyze, store, notify. Failures are recorded and sent to the DLQ.",
+  "StartAt": "Prepare",
+  "States": {
+    "Prepare": {
+      "Type": "Pass",
+      "Comment": "Pull what we need out of the S3 'Object Created' event. doc_id = key#etag, so re-delivery of the same upload is a duplicate but a new version of the file is not.",
+      "Parameters": {
+        "bucket.$": "$.detail.bucket.name",
+        "key.$": "$.detail.object.key",
+        "size.$": "$.detail.object.size",
+        "etag.$": "$.detail.object.etag",
+        "doc_id.$": "States.Format('{}#{}', $.detail.object.key, $.detail.object.etag)"
+      },
+      "ResultPath": "$.doc",
+      "Next": "Validate"
+    },
+    "Validate": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${validate_function_arn}",
+        "Payload.$": "$.doc"
+      },
+      "ResultPath": null,
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 4,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {"ErrorEquals": ["States.ALL"], "ResultPath": "$.error", "Next": "MarkFailed"}
+      ],
+      "Next": "RecordReceived"
+    },
+    "RecordReceived": {
+      "Type": "Task",
+      "Comment": "Idempotency: the conditional put fails if this upload was already processed.",
+      "Resource": "arn:aws:states:::dynamodb:putItem",
+      "Parameters": {
+        "TableName": "${table_name}",
+        "Item": {
+          "doc_id": {"S.$": "$.doc.doc_id"},
+          "status": {"S": "PROCESSING"},
+          "created_at": {"S.$": "$$.State.EnteredTime"},
+          "bucket": {"S.$": "$.doc.bucket"},
+          "object_key": {"S.$": "$.doc.key"},
+          "execution_arn": {"S.$": "$$.Execution.Id"}
+        },
+        "ConditionExpression": "attribute_not_exists(doc_id)"
+      },
+      "ResultPath": null,
+      "Retry": [
+        {
+          "ErrorEquals": ["DynamoDB.ProvisionedThroughputExceededException", "DynamoDB.ThrottlingException", "DynamoDB.InternalServerErrorException"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {"ErrorEquals": ["DynamoDB.ConditionalCheckFailedException"], "ResultPath": "$.duplicate", "Next": "Duplicate"},
+        {"ErrorEquals": ["States.ALL"], "ResultPath": "$.error", "Next": "MarkFailed"}
+      ],
+      "Next": "Analyze"
+    },
+    "Duplicate": {
+      "Type": "Succeed",
+      "Comment": "Already processed (event delivered twice): nothing to do."
+    },
+    "Analyze": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${analyze_function_arn}",
+        "Payload.$": "$.doc"
+      },
+      "ResultSelector": {
+        "row_count.$": "$.Payload.row_count",
+        "rack_count.$": "$.Payload.rack_count",
+        "issue_count.$": "$.Payload.issue_count",
+        "result.$": "$.Payload.result",
+        "status_counts.$": "$.Payload.status_counts",
+        "issues_sample.$": "$.Payload.issues_sample"
+      },
+      "ResultPath": "$.analysis",
+      "Retry": [
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 4,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {"ErrorEquals": ["States.ALL"], "ResultPath": "$.error", "Next": "MarkFailed"}
+      ],
+      "Next": "StoreResult"
+    },
+    "StoreResult": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "${table_name}",
+        "Key": {"doc_id": {"S.$": "$.doc.doc_id"}},
+        "UpdateExpression": "SET #s = :s, completed_at = :t, row_count = :rows, rack_count = :racks, issue_count = :issues, #r = :r, analysis = :a",
+        "ExpressionAttributeNames": {"#s": "status", "#r": "result"},
+        "ExpressionAttributeValues": {
+          ":s": {"S": "COMPLETE"},
+          ":t": {"S.$": "$$.State.EnteredTime"},
+          ":rows": {"N.$": "States.Format('{}', $.analysis.row_count)"},
+          ":racks": {"N.$": "States.Format('{}', $.analysis.rack_count)"},
+          ":issues": {"N.$": "States.Format('{}', $.analysis.issue_count)"},
+          ":r": {"S.$": "$.analysis.result"},
+          ":a": {"S.$": "States.JsonToString($.analysis)"}
+        }
+      },
+      "ResultPath": null,
+      "Retry": [
+        {
+          "ErrorEquals": ["DynamoDB.ProvisionedThroughputExceededException", "DynamoDB.ThrottlingException", "DynamoDB.InternalServerErrorException"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 5,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {"ErrorEquals": ["States.ALL"], "ResultPath": "$.error", "Next": "MarkFailed"}
+      ],
+      "Next": "Notify"
+    },
+    "Notify": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "${topic_arn}",
+        "Subject": "Rack inventory processed",
+        "Message.$": "States.Format('{} processed: {} rows across {} racks, {} issues ({}).', $.doc.key, $.analysis.row_count, $.analysis.rack_count, $.analysis.issue_count, $.analysis.result)"
+      },
+      "ResultPath": null,
+      "Retry": [
+        {"ErrorEquals": ["States.ALL"], "IntervalSeconds": 2, "MaxAttempts": 3, "BackoffRate": 2}
+      ],
+      "Next": "Done"
+    },
+    "Done": {
+      "Type": "Succeed"
+    },
+    "MarkFailed": {
+      "Type": "Task",
+      "Comment": "Record the failure on the item (creates it if Validate rejected the file before it was recorded).",
+      "Resource": "arn:aws:states:::dynamodb:updateItem",
+      "Parameters": {
+        "TableName": "${table_name}",
+        "Key": {"doc_id": {"S.$": "$.doc.doc_id"}},
+        "UpdateExpression": "SET #s = :s, failed_at = :t, created_at = if_not_exists(created_at, :t), object_key = :k, error_name = :e, error_cause = :c, execution_arn = :x",
+        "ExpressionAttributeNames": {"#s": "status"},
+        "ExpressionAttributeValues": {
+          ":s": {"S": "FAILED"},
+          ":t": {"S.$": "$$.State.EnteredTime"},
+          ":k": {"S.$": "$.doc.key"},
+          ":e": {"S.$": "$.error.Error"},
+          ":c": {"S.$": "$.error.Cause"},
+          ":x": {"S.$": "$$.Execution.Id"}
+        }
+      },
+      "ResultPath": null,
+      "Catch": [
+        {"ErrorEquals": ["States.ALL"], "ResultPath": "$.mark_failed_error", "Next": "SendToDLQ"}
+      ],
+      "Next": "SendToDLQ"
+    },
+    "SendToDLQ": {
+      "Type": "Task",
+      "Comment": "Keep the full context (event, doc, error) so the file can be fixed and redriven.",
+      "Resource": "arn:aws:states:::sqs:sendMessage",
+      "Parameters": {
+        "QueueUrl": "${dlq_url}",
+        "MessageBody.$": "$"
+      },
+      "ResultPath": null,
+      "Next": "ProcessingFailed"
+    },
+    "ProcessingFailed": {
+      "Type": "Fail",
+      "Error": "ProcessingFailed",
+      "Cause": "See the DynamoDB item and the dead-letter queue message for details."
+    }
+  }
+}

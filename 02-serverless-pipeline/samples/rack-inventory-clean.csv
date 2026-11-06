@@ -1,0 +1,11 @@
+asset_tag,serial_number,rack,rack_unit,model,status
+DC1-00101,SN8F2K1001,R01,1,Graviton Server G2,in_service
+DC1-00102,SN8F2K1002,R01,2,Graviton Server G2,in_service
+DC1-00103,SN8F2K1003,R01,3,Graviton Server G2,in_service
+DC1-00104,SN8F2K1004,R01,4,Graviton Server G2,spare
+DC1-00105,SN4T7Q2001,R01,42,Top-of-Rack Switch 100G,in_service
+DC1-00201,SN8F2K1101,R02,1,Graviton Server G2,in_service
+DC1-00202,SN8F2K1102,R02,2,Graviton Server G2,in_service
+DC1-00203,SN8F2K1103,R02,3,Graviton Server G2,staged
+DC1-00204,SN9P3M3001,R02,20,Storage Node S4,in_service
+DC1-00205,SN4T7Q2002,R02,42,Top-of-Rack Switch 100G,in_service
