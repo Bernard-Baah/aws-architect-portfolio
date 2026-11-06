@@ -38,6 +38,13 @@ jobs:
           dirs=$(find . -name '*.tf' -not -path '*/.terraform/*' -exec dirname {} \; | sort -u)
           failed=0
           for d in $dirs; do
+            # Modules that need an aliased provider (configuration_aliases) can't be
+            # validated standalone; Terraform validates them through the root
+            # stack that passes the providers in (e.g. 01-ha-web-app -> modules/edge).
+            if grep -q configuration_aliases "$d"/*.tf; then
+              echo "::notice title=validate skipped::$d needs aliased providers; validated through its root stack"
+              continue
+            fi
             echo "::group::$d"
             if ! terraform -chdir="$d" init -backend=false -input=false > /tmp/init.log 2>&1; then
               cat /tmp/init.log
