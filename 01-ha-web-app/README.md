@@ -77,6 +77,7 @@ The default security group has no rules.
 | App tier reachable via SSM, DB check from both AZs | ✅ 2026-11-06: `/health` ok, `/db` ok (PostgreSQL 17.9, TLS) |
 | Instance terminated without warning (2026-11-06) | **96.50%** over a 180 s probe: 276/286 OK. 10 failures (6 × 502, 4 × timeout), all between 14:35:23 and 14:35:41 (about 18 s) and only on requests routed to the dead target. Longest run of consecutive failures: 4 s. |
 | Replacement instance | The ASG launched `i-02ef…` in us-east-1b; it passed health checks and served 23 requests before the probe ended. |
+| Instance removed gracefully: `terminate-instance-in-auto-scaling-group` (2026-11-06) | **100.00%** over a 180 s probe: 301/301 OK, no failures. The ASG deregistered the target (30 s drain) before stopping it, then launched replacement `i-0cbad…` in us-east-1b, which served 53 requests. |
 | RDS forced failover (2026-11-05) | **40 s** per RDS event log (failover started → completed); primary moved us-east-1b → us-east-1a. API status back to `available` after 83 s. |
 | Scale-out under load | _ → _ instances |
 
@@ -149,7 +150,12 @@ instance keep succeeding the whole time. Ways to shrink the window:
 - Faster health checks (5 s interval, threshold 2), so the window is about 10 s
 - Planned removals that drain first: `aws autoscaling terminate-instance-in-auto-scaling-group
   --instance-id <id> --no-should-decrement-desired-capacity` deregisters the target before stopping
-  it, and should show 100%
+  it. Measured: **100%** (see Results). Scale-in and instance refreshes take the same draining path.
+
+| Scenario | Availability | Failure window |
+|---|---|---|
+| Instance crashes without warning | 96.50% | about 18 s, only for requests routed to the dead target |
+| Instance removed gracefully (drained first) | 100.00% | 0 s |
 
 ### Failover test (RDS)
 ```bash
