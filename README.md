@@ -18,6 +18,10 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 | 4 | [Multi-account landing zone](04-landing-zone/) | Organizations, SCPs, central logging, detection | ⏳ Planned |
 | 5 | [Observability & FinOps](05-observability-finops/) | SLOs, alarms, tracing, cost optimization | ⏳ Planned |
 
+## Project 01 at a glance
+
+[![Project 01 architecture](docs/diagrams/01-ha-web-app.svg)](01-ha-web-app/)
+
 ## Repository layout
 
 ```
