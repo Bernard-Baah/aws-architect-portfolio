@@ -89,7 +89,8 @@ run's path through the graph.
 | Test | Measured |
 |------|----------|
 | Sample run (2026-11-06) | ✅ clean → `COMPLETE` (10 rows, 2 racks, 0 issues) · issues → `COMPLETE` (8 rows, **all 5 issues found**) · `.txt` → `FAILED` (`ValidationError`), 1 message in the DLQ |
-| Duplicate event (same upload twice) | _ |
+| Duplicate upload (same key + same content → same ETag) | ✅ execution ended in the `Duplicate` state (`SucceedStateExited Duplicate`); stored result untouched |
+| DLQ alarm | ✅ `ALARM` within about 1 minute of the bad file: "1 datapoint [1.0] was greater than the threshold (0.0)" |
 | Burst: 500 files | _ |
 | Cost per 1,000 documents | _ |
 
