@@ -1,6 +1,6 @@
 # 02 · Serverless event-driven pipeline
 
-> **Status:** 🚧 In progress: core pipeline built; query API and burst test next
+> **Status:** 🚧 In progress: pipeline and query API built; burst test next
 
 ## Problem
 _Data center teams export rack inventories as CSV files, and bad rows (duplicate asset tags, missing
@@ -19,6 +19,8 @@ S3 incoming/*.csv ──EventBridge──▶ Step Functions (Standard)
                                    └─ Notify         SNS Publish (direct integration)
                      any failure ─▶ MarkFailed (DynamoDB) ─▶ SendToDLQ (SQS) ─▶ Fail
                      DLQ depth > 0 ─▶ CloudWatch alarm ─▶ SNS
+
+caller ──SigV4──▶ API Gateway HTTP API (IAM auth, throttled) ──▶ Lambda ──Query──▶ DynamoDB GSIs
 ```
 
 ### What the Analyze step checks
@@ -39,7 +41,7 @@ Decommissioned devices don't count as occupying a rack unit.
 - [x] SNS completion topic (optional email) + CloudWatch alarm when the DLQ isn't empty
 - [x] Least-privilege role per function, idempotency, X-Ray tracing
 - [x] Unit tests: handlers + workflow structure (run in CI)
-- [ ] API Gateway HTTP API to query results
+- [x] API Gateway HTTP API to query results (IAM auth, throttling, access logs, GSI queries only)
 - [ ] Burst test (500 files) and DLQ redrive
 
 ## Design decisions & trade-offs
@@ -61,6 +63,13 @@ Decommissioned devices don't count as occupying a rack unit.
 - **SNS topic not KMS-encrypted.** CloudWatch alarms can't publish to a topic using the AWS-managed
   `alias/aws/sns` key. Production would use a customer-managed key whose policy allows
   `cloudwatch.amazonaws.com`.
+- **Query API with IAM (SigV4) auth.** It's an internal operations API, so only identities in this AWS
+  account can call it. HTTP APIs don't support API keys, and an external audience would get a Cognito
+  JWT authorizer. The route is throttled (10 requests/s, burst 20) and every call is access-logged
+  with the caller's ARN.
+- **Queries, never scans.** `GET /documents?key=` uses the `by-key` index and `?status=` uses
+  `by-status`, both newest first with opaque `next` tokens for pagination. The API returns only
+  public fields (no execution ARNs or bucket names) and can only `Query`/`GetItem` this table.
 - **Least privilege:** `analyze` can read only `incoming/*`; `validate` reads nothing; the workflow can
   invoke only these two functions and write only to this table, topic and queue. Service roles carry
   `aws:SourceAccount` conditions (confused-deputy protection).
@@ -82,6 +91,15 @@ Expected:
 | `rack-inventory-issues.csv` | `COMPLETE` | 8 rows, 5 issues (listed by the script) |
 | `not-a-csv.txt` | `FAILED` (`ValidationError`) | 1 message in the DLQ, DLQ alarm fires |
 
+Query the results over the API (SigV4-signed with your current AWS sign-in):
+```bash
+./scripts/query-api.sh 'status=FAILED'
+./scripts/query-api.sh 'status=COMPLETE&limit=5'
+./scripts/query-api.sh 'key=incoming/<run>/rack-inventory-issues.csv'
+./scripts/query-api.sh --unsigned 'status=FAILED'
+```
+The last one should return **403**: no credentials, no access.
+
 Watch it run: **Step Functions → State machines → inventory-pipeline → Executions** shows each
 run's path through the graph.
 
@@ -91,6 +109,7 @@ run's path through the graph.
 | Sample run (2026-11-06) | ✅ clean → `COMPLETE` (10 rows, 2 racks, 0 issues) · issues → `COMPLETE` (8 rows, **all 5 issues found**) · `.txt` → `FAILED` (`ValidationError`), 1 message in the DLQ |
 | Duplicate upload (same key + same content → same ETag) | ✅ execution ended in the `Duplicate` state (`SucceedStateExited Duplicate`); stored result untouched |
 | DLQ alarm | ✅ `ALARM` within about 1 minute of the bad file: "1 datapoint [1.0] was greater than the threshold (0.0)" |
+| Query API: signed vs unsigned | _ |
 | Burst: 500 files | _ |
 | Cost per 1,000 documents | _ |
 
@@ -104,6 +123,7 @@ idle, so `terraform destroy` is optional here.
 ```bash
 python3 -m unittest discover -s 02-serverless-pipeline/tests -v
 ```
-23 tests: the validate and analyze handlers against the sample files, plus structural checks on the
-Step Functions definition (every transition valid, every state reachable, failures routed to the DLQ,
-validation errors never retried, DynamoDB reserved words aliased).
+31 tests: the validate and analyze handlers against the sample files; the query API with a fake table
+(right index, newest first, internal fields hidden, pagination round-trip, input validation); and
+structural checks on the Step Functions definition (every transition valid, every state reachable,
+failures routed to the DLQ, validation errors never retried, DynamoDB reserved words aliased).
