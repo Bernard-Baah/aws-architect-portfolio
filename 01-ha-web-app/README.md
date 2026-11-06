@@ -1,6 +1,6 @@
 # 01 · Highly available multi-tier web app
 
-> **Status:** 🚧 In progress: network, security groups and database done
+> **Status:** 🚧 In progress: network, security groups, database and compute done
 
 ## Problem
 _A business-critical app must survive the loss of an Availability Zone with no manual intervention._
@@ -33,7 +33,7 @@ The default security group has no rules.
 - [x] Network module: VPC, 6 subnets across 2 AZs, IGW, NAT, route tables, Flow Logs
 - [x] Security groups chained ALB → app → DB
 - [x] RDS Multi-AZ + Secrets Manager
-- [ ] Launch template, instance profile, ASG (min 2 / max 4, target tracking 60% CPU)
+- [x] Launch template, instance profile, ASG (min 2 / max 4, target tracking 60% CPU)
 - [ ] ALB + ACM cert + HTTP→HTTPS redirect, health checks on `/health`
 - [ ] CloudFront + S3 origin + WAF managed rules
 - [ ] Failure tests: terminate instances, force RDS failover, load test
@@ -53,6 +53,16 @@ The default security group has no rules.
 - **RDS Multi-AZ (instance), not Aurora.** `db.t4g.micro` Multi-AZ costs about $0.80/day; the smallest Aurora
   setup costs several times that. Aurora would win on failover time (usually under 30s vs. 1–2 min) and
   read replicas, which matters more in Project 03.
+- **`/health` never touches the database.** If it did, a 40-second RDS failover would fail every
+  instance's health check at once, and the Auto Scaling group would replace the whole fleet during a
+  database blip. `/db` is the separate deep check.
+- **No SSH, no key pairs, IMDSv2 only.** Shell access is through SSM Session Manager, which is audited
+  and needs no open inbound port. The instance role can read exactly one secret.
+- **Graviton (`t4g.micro`) on Amazon Linux 2023.** The AMI comes from AWS's public SSM parameter, so
+  every new launch template version picks up the latest patched image. A rolling *instance refresh*
+  (at least 50% healthy) replaces instances when the template changes.
+- **`desired_capacity` is left unset** so `terraform apply` never undoes a scale-out by the target
+  tracking policy.
 - _EC2 vs. ECS Fargate_
 
 ## Results
@@ -76,6 +86,27 @@ about $0.90/day. Cheaper options while building:
 terraform apply -var="db_multi_az=false"          # single-AZ DB, about half the DB cost
 terraform apply -var="enable_nat_gateway=false"   # no NAT; fine until the app tier exists
 ```
+
+### Check the app tier (before the load balancer exists)
+Instances take about 3–5 minutes after `apply` to install packages and register with SSM.
+```bash
+ASG=$(terraform output -raw asg_name)
+IDS=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG \
+  --query 'AutoScalingGroups[0].Instances[].[InstanceId,AvailabilityZone]' --output text)
+echo "$IDS"                       # expect 2 instances, one per AZ
+IDS=$(echo "$IDS" | awk '{print $1}' | xargs)
+CMD=$(aws ssm send-command --document-name AWS-RunShellScript --instance-ids $IDS \
+  --parameters 'commands=["curl -s localhost:8080/health; echo; curl -s localhost:8080/db"]' \
+  --query Command.CommandId --output text)
+sleep 8
+for i in $IDS; do
+  aws ssm get-command-invocation --command-id $CMD --instance-id $i \
+    --query StandardOutputContent --output text
+done
+```
+Each instance should return `{"status": "ok", ...}` and `{"ok": true, "latency_ms": ..., "db_version": "PostgreSQL 17..."}`.
+For an interactive shell: **Systems Manager → Session Manager → Start session**, then pick an instance.
+The boot log is in `/var/log/app-bootstrap.log`.
 
 ### Failover test (RDS)
 ```bash

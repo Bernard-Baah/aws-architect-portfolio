@@ -27,6 +27,12 @@ variable "app_port" {
   default     = 8080
 }
 
+variable "instance_type" {
+  description = "App instance type (Graviton/arm64)"
+  type        = string
+  default     = "t4g.micro"
+}
+
 variable "db_multi_az" {
   description = "RDS standby in the second AZ. Set false to halve DB cost when you're not testing failover."
   type        = bool

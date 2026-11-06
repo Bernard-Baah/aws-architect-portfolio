@@ -17,6 +17,10 @@ output "public_subnet_ids" {
 
 output "app_subnet_ids" {
   value = aws_subnet.app[*].id
+
+  # Anything launched into these subnets (the ASG) needs outbound internet at
+  # boot, so consumers wait until the NAT routes exist.
+  depends_on = [aws_route.app_nat, aws_route_table_association.app]
 }
 
 output "data_subnet_ids" {
