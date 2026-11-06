@@ -50,3 +50,11 @@ output "db_secret_arn" {
 output "db_multi_az" {
   value = module.database.multi_az
 }
+
+output "asg_name" {
+  value = module.web_tier.asg_name
+}
+
+output "app_ami_id" {
+  value = module.web_tier.ami_id
+}
