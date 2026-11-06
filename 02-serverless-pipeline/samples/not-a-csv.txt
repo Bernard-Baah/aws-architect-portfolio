@@ -1,0 +1,1 @@
+This file should be rejected by the Validate step and land in the dead-letter queue.
