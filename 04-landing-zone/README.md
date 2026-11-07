@@ -5,6 +5,8 @@
 ## Problem
 Projects 01–03 ran in one account where any admin could do anything, anywhere. Real companies split workloads, logs and security tooling across accounts so that one compromised or careless identity can't erase the evidence or switch off detection. This project turns the portfolio account into the management account of an AWS Organization with guardrails, central logging and central security findings, all in Terraform.
 
+**Brownfield start:** the account already managed an organization from an earlier project. Terraform adopts it with an `import` block and brings it under code, instead of creating a fresh one. That's the more common situation at real companies.
+
 ## Structure
 ```
 Management account (the existing portfolio account: Organizations, billing, Terraform state)

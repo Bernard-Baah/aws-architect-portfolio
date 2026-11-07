@@ -8,6 +8,14 @@
 #   ├── Workloads OU  → dev, prod
 #   └── Sandbox OU    → (empty; for experiments with looser rules later)
 
+# The portfolio account was already the management account of an organization
+# from an earlier project, so Terraform adopts it instead of creating one.
+# After the first apply this block is a no-op and can be deleted.
+import {
+  to = aws_organizations_organization.this
+  id = "o-aq2mzfaelk"
+}
+
 resource "aws_organizations_organization" "this" {
   feature_set = "ALL"
 
