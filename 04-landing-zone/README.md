@@ -72,8 +72,17 @@ terraform apply
 
 Terraform reaches Log Archive by assuming `OrganizationAccountAccessRole` from the management account. CI validates this stack but doesn't plan it: the CI role is read-only in the management account and deliberately can't assume admin roles in member accounts.
 
+## Deploy layer 2b: GuardDuty
+The management account makes Audit the GuardDuty **delegated administrator** in us-east-1 and us-west-2. From Audit, GuardDuty is auto-enabled for every existing and future account, so findings from all 5 accounts land in one place. Members can't switch it off: they aren't the admin, and the guardrails SCP denies the delete and disassociate calls.
+
+```bash
+cd 04-landing-zone/security
+terraform init
+terraform apply
+```
+
 ## Cost
-Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
+Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. GuardDuty has a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
 ## Teardown (read before deploying)
 - `terraform destroy` **closes** the member accounts (`close_on_deletion = true`) rather than removing them, because a removed account would need its own payment method and root login.
@@ -87,7 +96,8 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Layer 
 - [x] SCPs: deny leave-org, deny disabling CloudTrail/GuardDuty/Config/Security Hub, region allow-list, deny root
 - [x] Centralized root access for member accounts
 - [x] Org CloudTrail → Log Archive (Object Lock, KMS)
-- [ ] GuardDuty + Security Hub delegated to Audit
+- [x] GuardDuty delegated to Audit (both regions, auto-enable all members)
+- [ ] Security Hub delegated to Audit + AWS Config recorders
 - [ ] EventBridge → Lambda auto-response for high-severity findings
 - [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
