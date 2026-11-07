@@ -5,13 +5,13 @@
 ## Problem
 Projects 01–03 ran in one account where any admin could do anything, anywhere. Real companies split workloads, logs and security tooling across accounts so that one compromised or careless identity can't erase the evidence or switch off detection. This project turns the portfolio account into the management account of an AWS Organization with guardrails, central logging and central security findings, all in Terraform.
 
-**Brownfield start:** the account already managed an organization from an earlier project. Terraform adopts it with an `import` block and brings it under code, instead of creating a fresh one. That's the more common situation at real companies.
+**Brownfield start:** the account already managed an organization from an earlier project. Terraform adopts it with an `import` block and brings it under code, instead of creating a fresh one, and reuses its two idle member accounts as dev and prod. That's the more common situation at real companies.
 
 ## Structure
 ```
 Management account (the existing portfolio account: Organizations, billing, Terraform state)
 ├── Security OU      → lz-log-archive, lz-audit
-├── Workloads OU     → lz-dev, lz-prod
+├── Workloads OU     → dev, prod (adopted from the earlier org)
 └── Sandbox OU       → (empty)
 ```
 
@@ -30,7 +30,7 @@ Each layer is its own Terraform stack, so a later layer's provider can assume a 
 
 | Layer | Folder | What it creates |
 |---|---|---|
-| 1 | `organization/` | Organization (all features), 3 OUs, 4 member accounts, centralized root access, 2 SCPs |
+| 1 | `organization/` | Organization (imported), 3 OUs, 2 new + 2 adopted member accounts, centralized root access, 2 SCPs |
 | 2 | `security/` | Org CloudTrail → Log Archive (Object Lock, KMS); GuardDuty + Security Hub delegated to Audit; EventBridge auto-response |
 | 3 | `identity/` | IAM Identity Center permission sets: Admin (break-glass), PowerUser → Dev, ReadOnly → Prod |
 
@@ -63,6 +63,7 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Later 
 ## Teardown (read before deploying)
 - `terraform destroy` **closes** the member accounts (`close_on_deletion = true`) rather than removing them, because a removed account would need its own payment method and root login.
 - AWS lets an organization close at most **10 member accounts per rolling 30 days**; this build has 4.
+- Destroying the stack would also delete the imported organization once it has no member accounts.
 - A closed account stays in a **90-day post-closure period**: it can be reopened through Support, still counts toward the organization's account quota, and its email address can never be used for another AWS account.
 - The organization itself deletes once it has no member accounts. Closed accounts drop out after the 90 days.
 

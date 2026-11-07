@@ -16,6 +16,19 @@ import {
   id = "o-aq2mzfaelk"
 }
 
+# Two member accounts from that earlier project (no charges, nothing running)
+# are reused as dev and prod instead of creating new ones. Terraform moves them
+# into the Workloads OU; their names and emails stay as they are.
+import {
+  to = aws_organizations_account.this["dev"]
+  id = "248184352683"
+}
+
+import {
+  to = aws_organizations_account.this["prod"]
+  id = "414375722625"
+}
+
 resource "aws_organizations_organization" "this" {
   feature_set = "ALL"
 
@@ -79,8 +92,11 @@ resource "aws_organizations_account" "this" {
   close_on_deletion = true
 
   lifecycle {
-    # The Organizations API never returns role_name, so it would always diff.
-    ignore_changes = [role_name]
+    # role_name and iam_user_access_to_billing are never returned by the API,
+    # so they would always diff. name and email only matter at creation: they
+    # are ignored afterwards so no plan can ever replace (close) an account,
+    # and the two adopted accounts keep their original name and email.
+    ignore_changes = [role_name, iam_user_access_to_billing, name, email]
   }
 }
 
