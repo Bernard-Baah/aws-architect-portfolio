@@ -97,7 +97,16 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Layer 
 |--------|--------|-------|
 | Security Hub FSBP score | _% | _% |
 
-| SCP test (attempted action) | Result |
+| Layer 1 deploy | Result |
+|----------------|--------|
+| Existing organization adopted | 3 imported, 10 added, 3 changed, **0 destroyed** |
+| New accounts (log-archive, audit) | Created in 12–13 s each |
+| Adopted accounts (dev, prod) | Moved into Workloads OU, names and emails unchanged |
+| CI plan after apply | No changes (code matches the org) |
+
+| SCP test (dev account, as `OrganizationAccountAccessRole`, an admin) | Result |
 |-----------------------------|--------|
-| _Disable CloudTrail in Dev_ | _Denied_ |
-| _Launch EC2 in eu-west-1 from Dev_ | _Denied_ |
+| `sts get-caller-identity` | ✅ Allowed: management account can administer dev |
+| `ec2 describe-vpcs` in us-east-1 | ✅ Allowed (allow-listed region) |
+| `ec2 describe-vpcs` in eu-west-1 | ⛔ **Denied**: "explicit deny in a service control policy" naming the `region-allowlist` policy |
+| _Disable CloudTrail in dev as a non-exempt admin_ | _Pending (layer 3 Identity Center user)_ |
