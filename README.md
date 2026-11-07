@@ -26,6 +26,10 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 
 [![Project 02 architecture](docs/diagrams/02-serverless-pipeline.svg)](02-serverless-pipeline/)
 
+## Project 03 at a glance
+
+[![Project 03 architecture](docs/diagrams/03-multi-region-dr.svg)](03-multi-region-dr/)
+
 ## Repository layout
 
 ```

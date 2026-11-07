@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="975" viewBox="0 0 1200 975" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ah-dd344c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dd344c"/></marker>
+<marker id="ah-5f6b7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6b7a"/></marker>
+<marker id="ah-16191f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16191f"/></marker>
+<marker id="ah-2e5fa8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e5fa8"/></marker>
+<marker id="ah-b26200" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b26200"/></marker>
+</defs>
+<rect width="1200" height="975" fill="#ffffff"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#16191f" text-anchor="start">Project 03 · Multi-region disaster recovery (warm standby)</text>
+<text x="1160" y="44" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="end">github.com/Bernard-Baah/aws-architect-portfolio</text>
+<text x="40" y="68" font-size="13.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">One URL, two regions. Reads fail over per request with no errors; writes move with a one-command promotion.</text>
+<rect x="40" y="108" width="120" height="52" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="40" y="108" width="5" height="52" rx="2" fill="#16191f"/>
+<text x="54" y="128" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Users</text>
+<text x="54" y="144" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">browser</text>
+<rect x="370" y="92" width="460" height="86" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="370" y="92" width="5" height="86" rx="2" fill="#8c4fff"/>
+<text x="384" y="112" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Amazon CloudFront + AWS WAF</text>
+<text x="384" y="128" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">one HTTPS URL · origin group (GET/HEAD/OPTIONS)</text>
+<text x="384" y="144" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">primary first; standby on 500/502/503/504</text>
+<text x="384" y="160" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">or primary connect timeout (1 attempt, 2 s)</text>
+<polyline points="160,134 368,134" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="264" y="126" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">HTTPS</text>
+<rect x="40" y="232" width="520" height="470" rx="10" fill="none" stroke="#7d8998" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="54" y="254" font-size="14" font-weight="700" fill="#16191f" text-anchor="start">us-east-1 · primary</text>
+<rect x="56" y="268" width="488" height="300" rx="8" fill="none" stroke="#8c4fff" stroke-width="2"/>
+<text x="532" y="288" font-size="12" font-weight="600" fill="#8c4fff" text-anchor="end">VPC 10.0.0.0/16</text>
+<rect x="640" y="232" width="520" height="470" rx="10" fill="none" stroke="#7d8998" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="654" y="254" font-size="14" font-weight="700" fill="#b26200" text-anchor="start">us-west-2 · warm standby</text>
+<rect x="656" y="268" width="488" height="300" rx="8" fill="none" stroke="#8c4fff" stroke-width="2"/>
+<text x="1132" y="288" font-size="12" font-weight="600" fill="#8c4fff" text-anchor="end">VPC 10.1.0.0/16</text>
+<rect x="76" y="300" width="440" height="52" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="76" y="300" width="5" height="52" rx="2" fill="#8c4fff"/>
+<text x="90" y="320" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Internal ALB</text>
+<text x="90" y="336" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">no public IP · ingress only from CloudFront's prefix list</text>
+<rect x="76" y="380" width="440" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="76" y="380" width="5" height="68" rx="2" fill="#ed7100"/>
+<text x="90" y="400" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Auto Scaling group · 2 × t4g.micro</text>
+<text x="90" y="416" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">us-east-1a + us-east-1b · ELB health checks</text>
+<text x="90" y="432" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">reads DB credentials from Secrets Manager at boot</text>
+<rect x="76" y="476" width="440" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="76" y="476" width="5" height="68" rx="2" fill="#2e5fa8"/>
+<text x="90" y="496" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">RDS PostgreSQL 17 · primary</text>
+<text x="90" y="512" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">encrypted · backups on (required for a replica)</text>
+<text x="90" y="528" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">password set via write-only attribute</text>
+<rect x="76" y="600" width="440" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="76" y="600" width="5" height="68" rx="2" fill="#dd344c"/>
+<text x="90" y="620" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Secrets Manager · db-credentials</text>
+<text x="90" y="636" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">value written with secret_string_wo</text>
+<text x="90" y="652" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">never in Terraform state</text>
+<rect x="676" y="300" width="440" height="52" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="676" y="300" width="5" height="52" rx="2" fill="#8c4fff"/>
+<text x="690" y="320" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Internal ALB</text>
+<text x="690" y="336" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">same module, same security group chain</text>
+<rect x="676" y="380" width="440" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="676" y="380" width="5" height="68" rx="2" fill="#ed7100"/>
+<text x="690" y="400" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Auto Scaling group · 1 × t4g.micro (warm)</text>
+<text x="690" y="416" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">scaled to 2 by promote-standby.sh</text>
+<text x="690" y="432" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">serves reads immediately on failover</text>
+<rect x="676" y="476" width="440" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="676" y="476" width="5" height="68" rx="2" fill="#2e5fa8"/>
+<text x="690" y="496" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">RDS read replica → promoted on failover</text>
+<text x="690" y="512" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">own-region KMS key · ignore_changes on its source</text>
+<text x="690" y="528" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">writable 290 s after promotion started</text>
+<rect x="676" y="600" width="440" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="676" y="600" width="5" height="68" rx="2" fill="#dd344c"/>
+<text x="690" y="620" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Secrets Manager · replica secret</text>
+<text x="690" y="636" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">readable while us-east-1 is down</text>
+<polyline points="296,352 296,378" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="296,448 296,474" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<polyline points="896,352 896,378" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="896,448 896,474" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="302" y="368" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:8080</text>
+<text x="902" y="368" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:8080</text>
+<text x="302" y="465" font-size="10.5" font-weight="normal" fill="#2e5fa8" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:5432 TLS</text>
+<text x="902" y="465" font-size="10.5" font-weight="normal" fill="#2e5fa8" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">:5432 TLS (local replica)</text>
+<polyline points="520,178 520,206 296,206 296,298" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="380" y="199" font-size="11" font-weight="600" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">preferred</text>
+<polyline points="680,178 680,206 896,206 896,298" fill="none" stroke="#b26200" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ah-b26200)" stroke-linejoin="round"/>
+<text x="800" y="199" font-size="11" font-weight="600" fill="#b26200" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">on failover, per request</text>
+<polyline points="516,510 674,510" fill="none" stroke="#2e5fa8" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="600" y="502" font-size="11" font-weight="600" fill="#2e5fa8" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">async replication</text>
+<polyline points="516,634 674,634" fill="none" stroke="#dd344c" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-dd344c)" stroke-linejoin="round"/>
+<text x="600" y="626" font-size="11" font-weight="600" fill="#dd344c" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">replicated</text>
+<rect x="40" y="728" width="520" height="196" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="56" y="752" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Game day · 2026-11-07</text>
+<text x="56" y="778" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Availability during the outage (808 requests)</text>
+<text x="546" y="778" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">100.00%</text>
+<text x="56" y="802" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">RTO for reads</text>
+<text x="546" y="802" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">0 s</text>
+<text x="56" y="826" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">RTO for writes (incident → writable DB)</text>
+<text x="546" y="826" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">9 min 15 s</text>
+<text x="56" y="850" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">   of which promotion</text>
+<text x="546" y="850" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">290 s</text>
+<text x="56" y="874" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Target</text>
+<text x="546" y="874" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">&lt; 15 min ✓</text>
+<text x="56" y="898" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">RPO under write load</text>
+<text x="546" y="898" font-size="12" font-weight="700" fill="#b26200" text-anchor="end">next game day</text>
+<rect x="640" y="728" width="520" height="196" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="656" y="752" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Timeline (UTC)</text>
+<text x="656" y="778" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">17:14:31</text>
+<text x="730" y="778" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">us-east-1 app tier scaled to 0 (the incident)</text>
+<text x="656" y="804" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">17:14:31</text>
+<text x="730" y="804" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">CloudFront serves us-west-2, no failed requests</text>
+<text x="656" y="830" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">17:19:00</text>
+<text x="730" y="830" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">disaster declared: promote-standby.sh</text>
+<text x="656" y="856" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">17:23:46</text>
+<text x="730" y="856" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">replica promoted, database writable</text>
+<text x="656" y="882" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">17:23:54</text>
+<text x="730" y="882" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">2 healthy instances in us-west-2</text>
+<polyline points="40,952 84,952" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="92" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">normal path</text>
+<polyline points="200,952 244,952" fill="none" stroke="#b26200" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ah-b26200)" stroke-linejoin="round"/>
+<text x="252" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">failover path</text>
+<polyline points="370,952 414,952" fill="none" stroke="#2e5fa8" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="422" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">cross-region replication</text>
+<rect x="640" y="943" width="5" height="16" rx="2" fill="#8c4fff"/>
+<text x="652" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">network</text>
+<rect x="770" y="943" width="5" height="16" rx="2" fill="#ed7100"/>
+<text x="782" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">compute</text>
+<rect x="900" y="943" width="5" height="16" rx="2" fill="#2e5fa8"/>
+<text x="912" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">database</text>
+<rect x="1030" y="943" width="5" height="16" rx="2" fill="#dd344c"/>
+<text x="1042" y="956" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">secrets</text>
+</svg>
