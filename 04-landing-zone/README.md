@@ -1,6 +1,6 @@
 # 04 · Secure multi-account landing zone
 
-> **Status:** 🚧 In progress (layer 1 of 3: organization)
+> **Status:** 🚧 In progress (layer 1 deployed; layer 2 in progress)
 
 ## Problem
 Projects 01–03 ran in one account where any admin could do anything, anywhere. Real companies split workloads, logs and security tooling across accounts so that one compromised or careless identity can't erase the evidence or switch off detection. This project turns the portfolio account into the management account of an AWS Organization with guardrails, central logging and central security findings, all in Terraform.
@@ -31,7 +31,7 @@ Each layer is its own Terraform stack, so a later layer's provider can assume a 
 | Layer | Folder | What it creates |
 |---|---|---|
 | 1 | `organization/` | Organization (imported), 3 OUs, 2 new + 2 adopted member accounts, centralized root access, 2 SCPs |
-| 2 | `security/` | Org CloudTrail → Log Archive (Object Lock, KMS); GuardDuty + Security Hub delegated to Audit; EventBridge auto-response |
+| 2 | `security/` | Org CloudTrail → Log Archive (Object Lock, KMS), then GuardDuty + Security Hub delegated to Audit and EventBridge auto-response |
 | 3 | `identity/` | IAM Identity Center permission sets: Admin (break-glass), PowerUser → Dev, ReadOnly → Prod |
 
 ## Guardrails (layer 1)
@@ -57,8 +57,23 @@ terraform apply
 
 Expect around 5 to 10 minutes: each account takes a few minutes to provision.
 
+## Deploy layer 2a: organization CloudTrail
+One trail in the management account logs every API call in every account and region into `org-cloudtrail-<log-archive-id>` in Log Archive:
+- **SSE-KMS** with a customer managed key owned by Log Archive. Only CloudTrail can encrypt with it; Audit can decrypt for investigations.
+- **Object Lock** (governance mode, 7 days in this lab) and **log file validation**, so deleting or editing a log is blocked or detectable.
+- **Bucket policy** lets CloudTrail write only when the request comes from this trail (`aws:SourceArn`), and denies non-TLS access.
+
+```bash
+cd 04-landing-zone/security
+terraform init -backend-config="bucket=bernard-tfstate-40b007"
+terraform plan
+terraform apply
+```
+
+Terraform reaches Log Archive by assuming `OrganizationAccountAccessRole` from the management account. CI validates this stack but doesn't plan it: the CI role is read-only in the management account and deliberately can't assume admin roles in member accounts.
+
 ## Cost
-Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
+Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
 ## Teardown (read before deploying)
 - `terraform destroy` **closes** the member accounts (`close_on_deletion = true`) rather than removing them, because a removed account would need its own payment method and root login.
@@ -71,7 +86,7 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Later 
 - [x] Hand-built Organizations + Terraform (no Control Tower)
 - [x] SCPs: deny leave-org, deny disabling CloudTrail/GuardDuty/Config/Security Hub, region allow-list, deny root
 - [x] Centralized root access for member accounts
-- [ ] Org CloudTrail → Log Archive (Object Lock, KMS)
+- [x] Org CloudTrail → Log Archive (Object Lock, KMS)
 - [ ] GuardDuty + Security Hub delegated to Audit
 - [ ] EventBridge → Lambda auto-response for high-severity findings
 - [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
@@ -82,7 +97,16 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. Later 
 |--------|--------|-------|
 | Security Hub FSBP score | _% | _% |
 
-| SCP test (attempted action) | Result |
+| Layer 1 deploy | Result |
+|----------------|--------|
+| Existing organization adopted | 3 imported, 10 added, 3 changed, **0 destroyed** |
+| New accounts (log-archive, audit) | Created in 12–13 s each |
+| Adopted accounts (dev, prod) | Moved into Workloads OU, names and emails unchanged |
+| CI plan after apply | No changes (code matches the org) |
+
+| SCP test (dev account, as `OrganizationAccountAccessRole`, an admin) | Result |
 |-----------------------------|--------|
-| _Disable CloudTrail in Dev_ | _Denied_ |
-| _Launch EC2 in eu-west-1 from Dev_ | _Denied_ |
+| `sts get-caller-identity` | ✅ Allowed: management account can administer dev |
+| `ec2 describe-vpcs` in us-east-1 | ✅ Allowed (allow-listed region) |
+| `ec2 describe-vpcs` in eu-west-1 | ⛔ **Denied**: "explicit deny in a service control policy" naming the `region-allowlist` policy |
+| _Disable CloudTrail in dev as a non-exempt admin_ | _Pending (layer 3 Identity Center user)_ |
