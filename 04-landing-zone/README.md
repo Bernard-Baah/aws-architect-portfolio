@@ -120,3 +120,10 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. GuardD
 | `ec2 describe-vpcs` in us-east-1 | ✅ Allowed (allow-listed region) |
 | `ec2 describe-vpcs` in eu-west-1 | ⛔ **Denied**: "explicit deny in a service control policy" naming the `region-allowlist` policy |
 | _Disable CloudTrail in dev as a non-exempt admin_ | _Pending (layer 3 Identity Center user)_ |
+
+| Org CloudTrail test (layer 2a) | Result |
+|--------------------------------|--------|
+| Trail status from management | `IsLogging: true` |
+| Dev account activity in Log Archive | ✅ Delivered to `AWSLogs/<org-id>/<dev-id>/CloudTrail/` about 4 minutes after the calls |
+| SCP-denied eu-west-1 call | ✅ **Still recorded**: a log file appeared under `eu-west-1/` even though the call was blocked |
+| Delete a log file version as a Log Archive admin | ⛔ **AccessDenied**: "object protected by object lock" |
