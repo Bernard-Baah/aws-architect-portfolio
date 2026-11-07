@@ -6,6 +6,10 @@
 # that CloudFront manages inside the VPC. TLS terminates at CloudFront using its
 # default *.cloudfront.net certificate, so no domain is needed.
 
+locals {
+  failover = var.enable_failover
+}
+
 # ---------------------------------------------------------------- AWS-managed policies
 
 data "aws_cloudfront_cache_policy" "disabled" {
@@ -46,6 +50,40 @@ resource "aws_cloudfront_vpc_origin" "alb" {
   tags = var.tags
 }
 
+# Standby ALB in another region (Project 03). A VPC origin can point at an ALB
+# in any supported region; CloudFront reaches it over the AWS network.
+resource "aws_cloudfront_vpc_origin" "secondary" {
+  count = local.failover ? 1 : 0
+
+  lifecycle {
+    precondition {
+      condition     = var.secondary_alb_arn != null && var.secondary_alb_dns_name != null
+      error_message = "enable_failover = true needs secondary_alb_arn and secondary_alb_dns_name."
+    }
+  }
+
+  vpc_origin_endpoint_config {
+    name                   = "${var.name}-alb-secondary"
+    arn                    = var.secondary_alb_arn
+    http_port              = 80
+    https_port             = 443
+    origin_protocol_policy = "http-only"
+
+    origin_ssl_protocols {
+      items    = ["TLSv1.2"]
+      quantity = 1
+    }
+  }
+
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
+  }
+
+  tags = var.tags
+}
+
 # ---------------------------------------------------------------- Distribution
 
 resource "aws_cloudfront_distribution" "app" {
@@ -60,6 +98,11 @@ resource "aws_cloudfront_distribution" "app" {
     origin_id   = "alb"
     domain_name = var.alb_dns_name
 
+    # With a standby origin, give up on the primary fast (1 attempt, 2 s) so
+    # failover adds seconds, not the default 3 x 10 s, to each request.
+    connection_attempts = local.failover ? 1 : 3
+    connection_timeout  = local.failover ? 2 : 10
+
     vpc_origin_config {
       vpc_origin_id            = aws_cloudfront_vpc_origin.alb.id
       origin_keepalive_timeout = 5
@@ -67,10 +110,49 @@ resource "aws_cloudfront_distribution" "app" {
     }
   }
 
+  dynamic "origin" {
+    for_each = local.failover ? [1] : []
+
+    content {
+      origin_id   = "alb-secondary"
+      domain_name = var.secondary_alb_dns_name
+
+      vpc_origin_config {
+        vpc_origin_id            = aws_cloudfront_vpc_origin.secondary[0].id
+        origin_keepalive_timeout = 5
+        origin_read_timeout      = 30
+      }
+    }
+  }
+
+  # Per-request failover: if the primary answers 5xx or can't be reached,
+  # CloudFront retries the same request on the standby. No DNS TTL to wait out.
+  dynamic "origin_group" {
+    for_each = local.failover ? [1] : []
+
+    content {
+      origin_id = "alb-failover"
+
+      failover_criteria {
+        status_codes = [500, 502, 503, 504]
+      }
+
+      member {
+        origin_id = "alb"
+      }
+
+      member {
+        origin_id = "alb-secondary"
+      }
+    }
+  }
+
+  # Origin groups only fail over GET/HEAD/OPTIONS, and CloudFront requires a
+  # behavior that targets a group to allow only those methods.
   default_cache_behavior {
-    target_origin_id           = "alb"
+    target_origin_id           = local.failover ? "alb-failover" : "alb"
     viewer_protocol_policy     = "redirect-to-https"
-    allowed_methods            = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    allowed_methods            = local.failover ? ["GET", "HEAD", "OPTIONS"] : ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
     cached_methods             = ["GET", "HEAD"]
     compress                   = true
     cache_policy_id            = data.aws_cloudfront_cache_policy.disabled.id
