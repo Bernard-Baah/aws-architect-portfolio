@@ -7,14 +7,7 @@ _The app from Project 01 must survive the loss of an entire AWS Region._
 **Targets: RTO < 15 min, RPO < 5 min.**
 
 ## Architecture: warm standby
-```
-viewer ─HTTPS─▶ CloudFront + WAF ─▶ origin group ─┬─▶ primary ALB   us-east-1  (ASG: 2 instances)
-                                                  └─▶ standby ALB   us-west-2  (ASG: 1 instance)
-                                                       ▲ used when the primary returns 5xx or can't be reached
-
-primary RDS PostgreSQL (us-east-1) ──async replication──▶ read replica (us-west-2)
-DB secret (us-east-1) ──Secrets Manager replication──▶ us-west-2
-```
+![Architecture: users reach one CloudFront + WAF URL whose origin group prefers the internal ALB in us-east-1 (2 instances, primary RDS, Secrets Manager) and fails over per request to the internal ALB in us-west-2 (1 warm instance, cross-region read replica, replicated secret); results card shows 100% availability and 9 min 15 s to writable](../docs/diagrams/03-multi-region-dr.svg)
 Each region is a full copy of the Project 01 app tier (`modules/app-region` = network + security group
 chain + internal ALB + Auto Scaling group), deployed from one Terraform stack with two providers.
 
