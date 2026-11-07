@@ -12,6 +12,27 @@ variable "alb_dns_name" {
   type = string
 }
 
+variable "enable_failover" {
+  description = <<-EOT
+    Add a standby origin (secondary_alb_*) and fail over to it on 5xx or timeouts.
+    An explicit flag, not "is secondary_alb_arn set?": the ARN isn't known until
+    apply, and count must be known at plan time.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "secondary_alb_arn" {
+  description = "Standby ALB (another region); required when enable_failover = true"
+  type        = string
+  default     = null
+}
+
+variable "secondary_alb_dns_name" {
+  type    = string
+  default = null
+}
+
 variable "price_class" {
   description = "PriceClass_100 = North America + Europe edge locations (cheapest)"
   type        = string
