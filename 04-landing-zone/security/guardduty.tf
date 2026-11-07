@@ -39,6 +39,16 @@ provider "aws" {
   }
 }
 
+# Every active account except Audit (the admin itself), management included.
+data "aws_organizations_organization" "this" {}
+
+locals {
+  guardduty_members = {
+    for a in data.aws_organizations_organization.this.accounts :
+    a.id => a.email if a.status == "ACTIVE" && a.id != local.accounts["audit"]
+  }
+}
+
 module "guardduty_use1" {
   source = "../../modules/org-guardduty"
 
@@ -48,6 +58,7 @@ module "guardduty_use1" {
   }
 
   audit_account_id = local.accounts["audit"]
+  members          = local.guardduty_members
 }
 
 module "guardduty_usw2" {
@@ -59,4 +70,5 @@ module "guardduty_usw2" {
   }
 
   audit_account_id = local.accounts["audit"]
+  members          = local.guardduty_members
 }
