@@ -12,8 +12,18 @@ variable "alb_dns_name" {
   type = string
 }
 
+variable "enable_failover" {
+  description = <<-EOT
+    Add a standby origin (secondary_alb_*) and fail over to it on 5xx or timeouts.
+    An explicit flag, not "is secondary_alb_arn set?": the ARN isn't known until
+    apply, and count must be known at plan time.
+  EOT
+  type        = bool
+  default     = false
+}
+
 variable "secondary_alb_arn" {
-  description = "Optional standby ALB (another region). When set, CloudFront fails over to it on 5xx or timeouts."
+  description = "Standby ALB (another region); required when enable_failover = true"
   type        = string
   default     = null
 }

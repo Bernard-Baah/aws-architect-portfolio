@@ -7,7 +7,7 @@
 # default *.cloudfront.net certificate, so no domain is needed.
 
 locals {
-  failover = var.secondary_alb_arn != null
+  failover = var.enable_failover
 }
 
 # ---------------------------------------------------------------- AWS-managed policies
@@ -54,6 +54,13 @@ resource "aws_cloudfront_vpc_origin" "alb" {
 # in any supported region; CloudFront reaches it over the AWS network.
 resource "aws_cloudfront_vpc_origin" "secondary" {
   count = local.failover ? 1 : 0
+
+  lifecycle {
+    precondition {
+      condition     = var.secondary_alb_arn != null && var.secondary_alb_dns_name != null
+      error_message = "enable_failover = true needs secondary_alb_arn and secondary_alb_dns_name."
+    }
+  }
 
   vpc_origin_endpoint_config {
     name                   = "${var.name}-alb-secondary"

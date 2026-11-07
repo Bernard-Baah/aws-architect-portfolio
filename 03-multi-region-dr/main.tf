@@ -45,6 +45,7 @@ module "edge" {
   }
 
   name                   = var.name
+  enable_failover        = true
   alb_arn                = module.primary.alb_arn
   alb_dns_name           = module.primary.alb_dns_name
   secondary_alb_arn      = module.secondary.alb_arn
