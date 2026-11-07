@@ -12,6 +12,17 @@ variable "alb_dns_name" {
   type = string
 }
 
+variable "secondary_alb_arn" {
+  description = "Optional standby ALB (another region). When set, CloudFront fails over to it on 5xx or timeouts."
+  type        = string
+  default     = null
+}
+
+variable "secondary_alb_dns_name" {
+  type    = string
+  default = null
+}
+
 variable "price_class" {
   description = "PriceClass_100 = North America + Europe edge locations (cheapest)"
   type        = string

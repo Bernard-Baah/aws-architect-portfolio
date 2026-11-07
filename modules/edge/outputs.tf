@@ -14,3 +14,7 @@ output "web_acl_name" {
 output "vpc_origin_id" {
   value = aws_cloudfront_vpc_origin.alb.id
 }
+
+output "failover_enabled" {
+  value = local.failover
+}
