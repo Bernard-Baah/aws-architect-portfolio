@@ -127,3 +127,11 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. GuardD
 | Dev account activity in Log Archive | ✅ Delivered to `AWSLogs/<org-id>/<dev-id>/CloudTrail/` about 4 minutes after the calls |
 | SCP-denied eu-west-1 call | ✅ **Still recorded**: a log file appeared under `eu-west-1/` even though the call was blocked |
 | Delete a log file version as a Log Archive admin | ⛔ **AccessDenied**: "object protected by object lock" |
+
+| GuardDuty test (layer 2b) | Result |
+|---------------------------|--------|
+| Audit is delegated admin in us-east-1 and us-west-2 | ✅ Org auto-enable = `ALL` |
+| Members listed in Audit right after apply | 0: auto-enable enrolls *existing* accounts in the background, so members are now added explicitly in code |
+| Members after explicit enrollment | ✅ 4/4 **Enabled** (management, log-archive, dev, prod) |
+
+**Lesson learned:** enrolling the management account failed twice under Terraform with "Provider produced inconsistent result: Root object was present, but now absent". The same `create-members` call succeeded by hand minutes later, so it was eventual consistency right after its detector was created. Fix: enroll by hand, then adopt with `import` blocks so the code still describes reality.

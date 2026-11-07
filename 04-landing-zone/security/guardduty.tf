@@ -72,3 +72,17 @@ module "guardduty_usw2" {
   audit_account_id = local.accounts["audit"]
   members          = local.guardduty_members
 }
+
+# The management account's enrollment failed under Terraform: CreateMembers
+# ran about a second after its detector was created and AWS hadn't caught up
+# ("Root object was present, but now absent"). Enrolled by hand with the CLI a
+# few minutes later, then adopted here. Import id = <admin detector>:<account>.
+import {
+  to = module.guardduty_use1.aws_guardduty_member.this["923931894420"]
+  id = "4bd7d8b61f8c425daf08fbd0785ba1cb:923931894420"
+}
+
+import {
+  to = module.guardduty_usw2.aws_guardduty_member.this["923931894420"]
+  id = "539ad781f4db45d5a7d65fbe2f09e3b4:923931894420"
+}
