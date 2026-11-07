@@ -152,11 +152,26 @@ on-call engineer fixes the cause and replays the dead-letter queue.
 | DLQ alarm | ✅ `ALARM` within about 1 minute of the bad file: "1 datapoint [1.0] was greater than the threshold (0.0)" |
 | Query API (2026-11-06) | ✅ SigV4-signed → **200** with results and parsed analysis (for example, clean file: 10 rows, 2 racks, 0 issues) · unsigned → **403 Forbidden** |
 | Adding the `by-key` GSI to a live table | In-place update, 8 m 37 s (index backfilled before apply returned), 0 resources destroyed |
-| Burst: 500 files | _ |
+| Burst: 500 files (2026-11-07) | ✅ **500/500 `COMPLETE`, 0 lost, 0 failed, 89/89 planted issues found**, 14,981 rows. Account Lambda concurrency limit: **10**; analyze peaked at 10 with **13 throttles, all absorbed by the throttling retry policy** (DLQ unchanged). Per-file latency p50 0.33 s · p95 0.50 s · max 3.69 s (a throttled file waiting out its retry). Upload from a home connection took 2 m 15 s; the last result landed about 5 s after the last upload, so the pipeline kept pace and the network was the bottleneck. Average duration: validate 4 ms, analyze 217 ms. |
 | Incident drill (throttle → DLQ → fix → redrive) | _ |
-| Cost per 1,000 documents | _ |
+| Cost per 1,000 documents | **≈ $0.19** (see breakdown below) |
 
 ## Cost
+**Per 1,000 documents**, from the burst test's measured durations and us-east-1 list prices (approximate):
+
+| Item | Basis | Cost |
+|---|---|---|
+| Step Functions Standard | 7 state transitions per file × $0.025 per 1,000 | $0.175 |
+| DynamoDB on-demand | put + update, plus writes to 2 GSIs (~8 WRU/file) × $0.625 per million | ~$0.005 |
+| S3 | 1 PUT + 1 GET per file | ~$0.005 |
+| Lambda (arm64) | 2 requests; 4 ms × 128 MB + 217 ms × 256 MB per file | ~$0.001 |
+| SNS | 1 publish per file | ~$0.0005 |
+| **Total** | | **≈ $0.19** |
+
+About 92% is Step Functions state transitions. At high volume, **Express workflows** (billed per
+request and duration, not per transition) would cut that roughly tenfold, at the price of
+at-least-once execution and no per-run visual history. At this volume, Standard's auditability wins.
+
 At portfolio volume this is close to free: Lambda, Step Functions (4,000 free state transitions per
 month), DynamoDB on-demand and S3 are all billed per request. About 7 transitions per file means
 roughly 570 files per month inside the free tier. The DLQ alarm costs $0.10/month. Nothing bills while
