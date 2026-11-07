@@ -8,3 +8,4 @@ Reusable modules consumed by the project folders. Planned:
 - `github-oidc/` ✅: GitHub Actions OIDC provider + read-only plan role (Project 00, per account in 04)
 - `edge/` ✅: CloudFront VPC origin to an internal ALB (optional second-region origin group for failover), distribution with managed cache/security-header policies, AWS WAF (rate limit + 3 AWS managed rule groups) in us-east-1 (Project 01, reused in 03)
 - `app-region/` ✅: one region's app tier (network + security group chain + web tier), instantiated per region by Project 03
+- `org-guardduty/` ✅: GuardDuty for a whole organization in one region, delegated to a security account with auto-enable for every member (Project 04, once per allowed region)
