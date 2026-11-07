@@ -19,16 +19,19 @@ import {
 resource "aws_organizations_organization" "this" {
   feature_set = "ALL"
 
-  # Trusted access for the org-wide services the later layers turn on.
+  # Trusted access for the org-wide services the later layers turn on, plus
+  # the two the organization already had (kept so nothing else breaks).
   aws_service_access_principals = [
     "account.amazonaws.com",
     "cloudtrail.amazonaws.com",
     "config.amazonaws.com",
     "config-multiaccountsetup.amazonaws.com",
+    "cost-optimization-hub.bcm.amazonaws.com",
     "guardduty.amazonaws.com",
     "iam.amazonaws.com",
     "securityhub.amazonaws.com",
     "sso.amazonaws.com",
+    "user-subscriptions.amazonaws.com",
   ]
 
   enabled_policy_types = ["SERVICE_CONTROL_POLICY"]
