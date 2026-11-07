@@ -18,3 +18,8 @@ output "guardduty_detector_ids" {
     "us-west-2" = module.guardduty_usw2.audit_detector_id
   }
 }
+
+output "config_bucket" {
+  description = "Central AWS Config bucket in Log Archive"
+  value       = aws_s3_bucket.config.id
+}
