@@ -1,6 +1,6 @@
 # 03 · Multi-region disaster recovery
 
-> **Status:** 🚧 In progress: two-region stack built; game day next
+> **Status:** ✅ Game day passed (2026-11-07): 100% availability through a primary-region outage, writable in us-west-2 9 min 15 s after the incident
 
 ## Problem
 _The app from Project 01 must survive the loss of an entire AWS Region._
@@ -32,8 +32,8 @@ chain + internal ALB + Auto Scaling group), deployed from one Terraform stack wi
 - [x] DB secret replicated to the standby region
 - [x] CloudFront origin group with fast primary timeouts + WAF
 - [x] Promotion script with timings
-- [ ] Game day: break the primary, measure RTO/RPO
-- [ ] Fail back to `us-east-1`
+- [x] Game day: break the primary, measure RTO (RPO under write load: see Known gaps)
+- [x] Fail-back runbook documented (not yet executed)
 
 ## Design decisions & trade-offs
 - **CloudFront origin failover instead of Route 53 failover.** No domain needed, and failover happens
@@ -79,10 +79,53 @@ Run game days in one sitting, then `terraform destroy`.
 
 Requires Terraform **1.11+** (write-only attributes).
 
-## Results
-| Test | Measured |
-|------|----------|
-| Traffic failover (primary app tier down) | _ |
-| Replica lag (RPO estimate) | _ |
-| Promotion time (RTO for writes) | _ |
-| Fail back | _ |
+## Game day · 2026-11-07
+**Scenario:** the primary region's app tier is lost (us-east-1 Auto Scaling group set to 0). A probe
+hit the single CloudFront URL twice a second for 10 minutes the whole time.
+
+| Time (UTC) | Event |
+|---|---|
+| before 17:14:31 | us-east-1a and us-east-1b serve traffic (36 requests each) |
+| **17:14:31** | **Incident:** us-east-1 app tier scaled to 0 |
+| 17:14:31 → | CloudFront origin group sends traffic to us-west-2, **with no failed requests** |
+| 17:19:00 | Disaster declared: `promote-standby.sh` starts (4 min 29 s of human decision time) |
+| 17:18:56 | Standby Auto Scaling group raised to 2 |
+| 17:23:46 | Replica promoted, **writable** (290 s); replication source = None |
+| 17:23:54 | 2 healthy instances in us-west-2 |
+
+| Measure | Target | Result |
+|---|---|---|
+| Availability during the outage (808 requests) | | **100.00%**, 0 s failure window |
+| RTO for reads (users see the app working) | < 15 min | **0 s** (per-request origin failover) |
+| RTO for writes (incident → writable DB) | < 15 min | **9 min 15 s** ✅ (4 min 29 s decision + 4 min 50 s automation) |
+| Promotion alone | | 290 s |
+| RPO | < 5 min | **Not measured under write load** (see below) |
+
+Instances that served the probe: `us-east-1a` 36 · `us-east-1b` 36 · `us-west-2b` 590 · `us-west-2a` 146
+(the second standby instance, launched by the promotion script).
+
+### Known gaps (and how to close them)
+- **RPO wasn't measured under writes.** CloudWatch `ReplicaLag` read 125–347 s on average (peaks
+  257–302 s, and 647 s right after the replica was created). That's an artifact of an **idle** source:
+  per [AWS](https://repost.aws/knowledge-center/rds-postgresql-replication-lag), with no transactions
+  RDS PostgreSQL replicas report lag of up to 5 minutes, because the metric is *time since the last
+  committed transaction* and resets when the WAL segment switches (every 5 minutes by default). With
+  zero writes, no data was at risk. **Next game day:** run a write heartbeat (one timestamped row per
+  second) on the primary, then compare the newest row on the promoted replica to the incident time.
+- **The outage was graceful.** Scaling to 0 drains targets, so the primary returned clean 503s. A
+  harder test is to block the primary ALB's security group (connection timeouts), which exercises
+  the 1-attempt / 2-second origin timeout.
+- **The 4.5-minute decision time dominates RTO.** It's deliberate, because promotion is a one-way door.
+  To cut it: a CloudWatch alarm on primary 5xx/health that pages on-call with the promote command ready.
+
+## Fail back to us-east-1 (runbook, not yet executed)
+After promotion, us-west-2 is the only writable copy. Getting back without data loss:
+1. Restore the us-east-1 app tier (Auto Scaling group back to 2). CloudFront still prefers it, so
+   **first** keep it out of service: leave it at 0, or swap the origin group order.
+2. Create a new cross-region replica **in us-east-1 from the promoted us-west-2 DB** and wait for it to
+   catch up.
+3. In a short maintenance window: stop writes, confirm replication is caught up, promote the us-east-1
+   replica, point the us-east-1 app at it, and bring the us-east-1 app tier back.
+4. Rebuild a fresh us-west-2 replica from the new primary, back to the original layout.
+In Terraform terms: after step 3, re-import the promoted DBs, or run `terraform destroy` and `terraform apply`
+for a lab. Automating this is a good follow-up project.

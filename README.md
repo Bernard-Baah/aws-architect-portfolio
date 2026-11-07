@@ -14,7 +14,7 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 | 0 | [Shared setup](00-setup/) | Remote state, CI with OIDC (immutable repo IDs), PR annotations for fmt/validate errors | ✅ Done |
 | 1 | [HA multi-tier web app](01-ha-web-app/) | CloudFront + WAF → internal ALB → ASG → RDS Multi-AZ. Measured: 100% availability on graceful replacement, 96.5% on instance crash, 40 s DB failover | ✅ Done |
 | 2 | [Serverless event-driven pipeline](02-serverless-pipeline/) | S3 → EventBridge → Step Functions → Lambda/DynamoDB/SNS; IAM-auth query API. Measured: 500-file burst with 0 lost (10-concurrency account, throttles absorbed), ≈ $0.19 per 1,000 files, incident drill DLQ → redrive → alarm OK; 38 unit tests | ✅ Done |
-| 3 | [Multi-region disaster recovery](03-multi-region-dr/) | Warm standby us-east-1 → us-west-2: CloudFront origin failover, cross-region RDS replica, replicated secret, password never in state | 🚧 In progress |
+| 3 | [Multi-region disaster recovery](03-multi-region-dr/) | Warm standby us-east-1 → us-west-2: CloudFront origin failover, cross-region RDS replica, password never in state. Game day: **100% availability** through a primary-region outage, **writable in 9 min 15 s** (target 15) | ✅ Done |
 | 4 | [Multi-account landing zone](04-landing-zone/) | Organizations, SCPs, central logging, detection | ⏳ Planned |
 | 5 | [Observability & FinOps](05-observability-finops/) | SLOs, alarms, tracing, cost optimization | ⏳ Planned |
 
