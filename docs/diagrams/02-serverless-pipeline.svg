@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="930" viewBox="0 0 1200 930" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ah-2e5fa8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e5fa8"/></marker>
+<marker id="ah-d13212" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d13212"/></marker>
+<marker id="ah-5f6b7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6b7a"/></marker>
+<marker id="ah-16191f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16191f"/></marker>
+<marker id="ah-e7157b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e7157b"/></marker>
+</defs>
+<rect width="1200" height="930" fill="#ffffff"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#16191f" text-anchor="start">Project 02 · Serverless event-driven pipeline</text>
+<text x="1160" y="44" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="end">github.com/Bernard-Baah/aws-architect-portfolio</text>
+<text x="40" y="68" font-size="13.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Every rack-inventory CSV is checked automatically. Nothing runs while idle; nothing is lost when it fails.</text>
+<rect x="200" y="92" width="975" height="750" rx="10" fill="none" stroke="#7d8998" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="1163" y="112" font-size="12.5" font-weight="600" fill="#7d8998" text-anchor="end">AWS Region · us-east-1 · serverless</text>
+<rect x="40" y="138" width="130" height="52" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="40" y="138" width="5" height="52" rx="2" fill="#16191f"/>
+<text x="54" y="158" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Uploader</text>
+<text x="54" y="174" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">aws s3 cp</text>
+<rect x="230" y="130" width="186" height="70" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="230" y="130" width="5" height="70" rx="2" fill="#3f8624"/>
+<text x="244" y="150" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">S3 bucket</text>
+<text x="244" y="166" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">incoming/*.csv</text>
+<text x="244" y="182" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">TLS-only · 30-day expiry</text>
+<polyline points="170,164 228,164" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="199" y="156" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">PUT</text>
+<rect x="230" y="250" width="186" height="70" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="230" y="250" width="5" height="70" rx="2" fill="#8c4fff"/>
+<text x="244" y="270" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">EventBridge rule</text>
+<text x="244" y="286" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Object Created, incoming/</text>
+<text x="244" y="302" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">retry 10× · DLQ on failure</text>
+<polyline points="323,200 323,248" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="330" y="228" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">event</text>
+<rect x="450" y="120" width="425" height="600" rx="10" fill="none" stroke="#e7157b" stroke-width="2"/>
+<text x="465" y="142" font-size="12.5" font-weight="600" fill="#e7157b" text-anchor="start">Step Functions · Standard workflow</text>
+<rect x="550" y="160" width="160" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="550" y="160" width="5" height="40" rx="2" fill="#7d8998"/>
+<text x="563" y="177" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">Prepare</text>
+<text x="563" y="192" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Pass · doc_id = key#etag</text>
+<rect x="550" y="215" width="160" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="550" y="215" width="5" height="40" rx="2" fill="#ed7100"/>
+<text x="563" y="232" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">Validate</text>
+<text x="563" y="247" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Lambda · type, size</text>
+<rect x="550" y="270" width="160" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="550" y="270" width="5" height="40" rx="2" fill="#2e5fa8"/>
+<text x="563" y="287" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">RecordReceived</text>
+<text x="563" y="302" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">DynamoDB · conditional put</text>
+<rect x="550" y="325" width="160" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="550" y="325" width="5" height="40" rx="2" fill="#ed7100"/>
+<text x="563" y="342" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">Analyze</text>
+<text x="563" y="357" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Lambda · CSV data quality</text>
+<rect x="550" y="380" width="160" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="550" y="380" width="5" height="40" rx="2" fill="#2e5fa8"/>
+<text x="563" y="397" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">StoreResult</text>
+<text x="563" y="412" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">DynamoDB · update</text>
+<rect x="550" y="435" width="160" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="550" y="435" width="5" height="40" rx="2" fill="#e7157b"/>
+<text x="563" y="452" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">Notify</text>
+<text x="563" y="467" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">SNS · publish</text>
+<rect x="550" y="490" width="160" height="40" rx="6" fill="#f2f8ee" stroke="#9bc58a" stroke-width="1.2"/>
+<rect x="550" y="490" width="5" height="40" rx="2" fill="#1d8102"/>
+<text x="563" y="507" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">Done</text>
+<text x="563" y="522" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Succeed</text>
+<polyline points="630,200 630,213" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="630,255 630,268" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="630,310 630,323" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="630,365 630,378" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="630,420 630,433" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="630,475 630,488" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="416,285 470,285 470,180 548,180" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="475" y="300" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">start</text>
+<rect x="740" y="270" width="125" height="40" rx="6" fill="#f2f8ee" stroke="#9bc58a" stroke-width="1.2"/>
+<rect x="740" y="270" width="5" height="40" rx="2" fill="#1d8102"/>
+<text x="753" y="287" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">Duplicate</text>
+<text x="753" y="302" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Succeed · already done</text>
+<polyline points="710,290 738,290" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="718" y="341" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">retries: throttling 10×,</text>
+<text x="718" y="355" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">each wait ≤ 30 s, jitter</text>
+<polyline points="550,235 535,235" fill="none" stroke="#d13212" stroke-width="1.5" stroke-linejoin="round"/>
+<polyline points="550,290 535,290" fill="none" stroke="#d13212" stroke-width="1.5" stroke-linejoin="round"/>
+<polyline points="550,345 535,345" fill="none" stroke="#d13212" stroke-width="1.5" stroke-linejoin="round"/>
+<polyline points="550,400 535,400" fill="none" stroke="#d13212" stroke-width="1.5" stroke-linejoin="round"/>
+<polyline points="535,235 535,565 738,565" fill="none" stroke="#d13212" stroke-width="1.5" marker-end="url(#ah-d13212)" stroke-linejoin="round"/>
+<text x="527" y="470" font-size="10.5" font-weight="normal" fill="#d13212" text-anchor="end" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Catch: any error</text>
+<rect x="740" y="545" width="125" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="740" y="545" width="5" height="40" rx="2" fill="#2e5fa8"/>
+<text x="753" y="562" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">MarkFailed</text>
+<text x="753" y="577" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">DynamoDB · update</text>
+<rect x="740" y="605" width="125" height="40" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="740" y="605" width="5" height="40" rx="2" fill="#e7157b"/>
+<text x="753" y="622" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">SendToDLQ</text>
+<text x="753" y="637" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">SQS · full context</text>
+<rect x="740" y="665" width="125" height="40" rx="6" fill="#fbeeee" stroke="#e2a3a3" stroke-width="1.2"/>
+<rect x="740" y="665" width="5" height="40" rx="2" fill="#d13212"/>
+<text x="753" y="682" font-size="12.5" font-weight="600" fill="#16191f" text-anchor="start">ProcessingFailed</text>
+<text x="753" y="697" font-size="10.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Fail</text>
+<polyline points="802,585 802,603" fill="none" stroke="#d13212" stroke-width="1.8" marker-end="url(#ah-d13212)" stroke-linejoin="round"/>
+<polyline points="802,645 802,663" fill="none" stroke="#d13212" stroke-width="1.8" marker-end="url(#ah-d13212)" stroke-linejoin="round"/>
+<rect x="560" y="765" width="300" height="58" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="560" y="765" width="5" height="58" rx="2" fill="#2e5fa8"/>
+<text x="574" y="785" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">DynamoDB · documents</text>
+<text x="574" y="801" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">on-demand · GSIs by-status, by-key · PITR</text>
+<polyline points="650,720 650,763" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="656" y="746" font-size="10.5" font-weight="normal" fill="#2e5fa8" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">put / update</text>
+<rect x="900" y="420" width="262" height="70" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="900" y="420" width="5" height="70" rx="2" fill="#e7157b"/>
+<text x="914" y="440" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">SNS topic</text>
+<text x="914" y="456" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">completion + alarm notices</text>
+<text x="914" y="472" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">email subscription (optional)</text>
+<polyline points="710,455 898,455" fill="none" stroke="#e7157b" stroke-width="1.8" marker-end="url(#ah-e7157b)" stroke-linejoin="round"/>
+<rect x="900" y="595" width="262" height="70" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="900" y="595" width="5" height="70" rx="2" fill="#e7157b"/>
+<text x="914" y="615" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">SQS dead-letter queue</text>
+<text x="914" y="631" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">14-day retention · encrypted</text>
+<text x="914" y="647" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">redrive-dlq.sh replays fixed files</text>
+<polyline points="865,625 898,625" fill="none" stroke="#e7157b" stroke-width="1.8" marker-end="url(#ah-e7157b)" stroke-linejoin="round"/>
+<rect x="900" y="705" width="262" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="900" y="705" width="5" height="56" rx="2" fill="#e7157b"/>
+<text x="914" y="725" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">CloudWatch alarm</text>
+<text x="914" y="741" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">DLQ depth > 0</text>
+<polyline points="1031,665 1031,703" fill="none" stroke="#e7157b" stroke-width="1.8" marker-end="url(#ah-e7157b)" stroke-linejoin="round"/>
+<polyline points="1162,733 1168,733 1168,470 1164,470" fill="none" stroke="#e7157b" stroke-width="1.8" marker-end="url(#ah-e7157b)" stroke-linejoin="round"/>
+<text x="1160" y="545" font-size="10.5" font-weight="normal" fill="#e7157b" text-anchor="end" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">alarm → notify</text>
+<rect x="40" y="678" width="130" height="52" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="40" y="678" width="5" height="52" rx="2" fill="#16191f"/>
+<text x="54" y="698" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Ops engineer</text>
+<text x="54" y="714" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">curl --aws-sigv4</text>
+<rect x="230" y="670" width="186" height="68" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="230" y="670" width="5" height="68" rx="2" fill="#8c4fff"/>
+<text x="244" y="690" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">API Gateway HTTP API</text>
+<text x="244" y="706" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">IAM auth · 10 rps throttle</text>
+<text x="244" y="722" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">JSON access logs</text>
+<polyline points="170,704 228,704" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="199" y="696" font-size="10.5" font-weight="normal" fill="#16191f" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">SigV4</text>
+<rect x="230" y="765" width="186" height="58" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="230" y="765" width="5" height="58" rx="2" fill="#ed7100"/>
+<text x="244" y="785" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Lambda · query API</text>
+<text x="244" y="801" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">read-only, public fields only</text>
+<polyline points="323,738 323,763" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="416,794 558,794" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="487" y="786" font-size="10.5" font-weight="normal" fill="#2e5fa8" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Query (GSIs)</text>
+<rect x="222" y="355" width="212" height="290" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="236" y="378" font-size="12.5" font-weight="700" fill="#16191f" text-anchor="start">Measured · 2026-11-07</text>
+<text x="236" y="403" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">500-file burst</text>
+<text x="424" y="403" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">0 lost</text>
+<text x="236" y="426.5" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Status</text>
+<text x="424" y="426.5" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">500 complete</text>
+<text x="236" y="450.0" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Planted issues found</text>
+<text x="424" y="450.0" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">89 / 89</text>
+<text x="236" y="473.5" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Lambda concurrency</text>
+<text x="424" y="473.5" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">10 (account)</text>
+<text x="236" y="497.0" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Throttles absorbed</text>
+<text x="424" y="497.0" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">13</text>
+<text x="236" y="520.5" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Latency p50 / p95</text>
+<text x="424" y="520.5" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">0.33 / 0.50 s</text>
+<text x="236" y="544.0" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Cost per 1,000 files</text>
+<text x="424" y="544.0" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">≈ $0.19</text>
+<text x="236" y="567.5" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Duplicate upload</text>
+<text x="424" y="567.5" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">skipped</text>
+<text x="236" y="591.0" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Incident drill</text>
+<text x="424" y="591.0" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">DLQ → redrive ✓</text>
+<text x="236" y="614.5" font-size="11.2" font-weight="normal" fill="#5f6b7a" text-anchor="start">Query API unsigned</text>
+<text x="424" y="614.5" font-size="11.2" font-weight="700" fill="#1d8102" text-anchor="end">403</text>
+<polyline points="40,880 84,880" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="92" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">event / request flow</text>
+<polyline points="250,880 294,880" fill="none" stroke="#d13212" stroke-width="1.5" marker-end="url(#ah-d13212)" stroke-linejoin="round"/>
+<text x="302" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">failure path</text>
+<rect x="430" y="871" width="5" height="16" rx="2" fill="#ed7100"/>
+<text x="442" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Lambda</text>
+<rect x="550" y="871" width="5" height="16" rx="2" fill="#2e5fa8"/>
+<text x="562" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">DynamoDB</text>
+<rect x="670" y="871" width="5" height="16" rx="2" fill="#e7157b"/>
+<text x="682" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">SNS / SQS</text>
+<rect x="790" y="871" width="5" height="16" rx="2" fill="#7d8998"/>
+<text x="802" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Pass state</text>
+<rect x="910" y="871" width="5" height="16" rx="2" fill="#1d8102"/>
+<text x="922" y="884" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Succeed</text>
+</svg>

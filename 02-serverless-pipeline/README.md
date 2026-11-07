@@ -8,20 +8,7 @@ serials, two devices in the same rack unit) cause real problems on the floor. Ev
 checked automatically, at any burst size, with failures captured instead of lost, and no servers to run._
 
 ## Architecture
-```
-S3 incoming/*.csv ──EventBridge──▶ Step Functions (Standard)
-                                   │
-                                   ├─ Prepare        Pass: doc_id = key#etag
-                                   ├─ Validate       Lambda: type and size (bad files are not retried)
-                                   ├─ RecordReceived DynamoDB PutItem, conditional (idempotent)
-                                   ├─ Analyze        Lambda: parse CSV, find data-quality issues
-                                   ├─ StoreResult    DynamoDB UpdateItem (direct integration)
-                                   └─ Notify         SNS Publish (direct integration)
-                     any failure ─▶ MarkFailed (DynamoDB) ─▶ SendToDLQ (SQS) ─▶ Fail
-                     DLQ depth > 0 ─▶ CloudWatch alarm ─▶ SNS
-
-caller ──SigV4──▶ API Gateway HTTP API (IAM auth, throttled) ──▶ Lambda ──Query──▶ DynamoDB GSIs
-```
+![Architecture: uploads to S3 trigger an EventBridge rule that starts a Step Functions Standard workflow (Prepare, Validate, RecordReceived, Analyze, StoreResult, Notify); any error is caught into MarkFailed, SendToDLQ and a Fail state; results go to DynamoDB; the DLQ drives a CloudWatch alarm to SNS; an IAM-authorized API Gateway queries DynamoDB through a Lambda](../docs/diagrams/02-serverless-pipeline.svg)
 
 ### What the Analyze step checks
 | Check | Example from `samples/rack-inventory-issues.csv` |
