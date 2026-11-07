@@ -31,6 +31,19 @@ resource "aws_guardduty_detector" "audit" {
   finding_publishing_frequency = "FIFTEEN_MINUTES"
 }
 
+# The management account can only be enrolled as a member once it has its
+# own detector (otherwise CreateMembers silently rejects it). After enrollment
+# the admin controls its settings, so Terraform only creates it.
+resource "aws_guardduty_detector" "management" {
+  provider = aws.management
+
+  enable = true
+
+  lifecycle {
+    ignore_changes = all
+  }
+}
+
 resource "aws_guardduty_organization_admin_account" "this" {
   provider = aws.management
 
@@ -66,7 +79,10 @@ resource "aws_guardduty_member" "this" {
     ignore_changes = [email, invite]
   }
 
-  depends_on = [aws_guardduty_organization_configuration.this]
+  depends_on = [
+    aws_guardduty_organization_configuration.this,
+    aws_guardduty_detector.management,
+  ]
 }
 
 output "audit_detector_id" {
