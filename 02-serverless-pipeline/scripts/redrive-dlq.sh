@@ -18,9 +18,14 @@ SM=$(terraform output -raw state_machine_arn)
 TMP=$(mktemp -d -t redrive.XXXXXX)
 retried=0; skipped=0
 
+# A dry run must not hide messages from the real run that usually follows it:
+# with visibility 0, every message it reads is immediately visible again.
+VISIBILITY=60
+[ "$DRY" = 1 ] && VISIBILITY=0
+
 while :; do
   aws sqs receive-message --queue-url "$DLQ" --max-number-of-messages 10 \
-    --wait-time-seconds 2 --visibility-timeout 60 --output json > "$TMP/batch.json"
+    --wait-time-seconds 2 --visibility-timeout "$VISIBILITY" --output json > "$TMP/batch.json"
   count=$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1])).get("Messages", [])))' "$TMP/batch.json" 2>/dev/null || echo 0)
   [ "$count" = "0" ] && break
 
@@ -50,7 +55,7 @@ while :; do
     fi
     i=$((i + 1))
   done
-  # In a dry run the messages come back after the visibility timeout; one pass is enough.
+  # A dry run would keep re-reading the same visible messages; one pass is enough.
   [ "$DRY" = 1 ] && break
 done
 

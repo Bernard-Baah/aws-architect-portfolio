@@ -1,6 +1,6 @@
 # 02 · Serverless event-driven pipeline
 
-> **Status:** 🚧 Final layer: burst test and DLQ redrive tooling built, results pending
+> **Status:** ✅ Complete: pipeline, query API, 500-file burst test and incident drill, all measured
 
 ## Problem
 _Data center teams export rack inventories as CSV files, and bad rows (duplicate asset tags, missing
@@ -158,7 +158,7 @@ on-call engineer fixes the cause and replays the dead-letter queue.
 | Query API (2026-11-06) | ✅ SigV4-signed → **200** with results and parsed analysis (for example, clean file: 10 rows, 2 racks, 0 issues) · unsigned → **403 Forbidden** |
 | Adding the `by-key` GSI to a live table | In-place update, 8 m 37 s (index backfilled before apply returned), 0 resources destroyed |
 | Burst: 500 files (2026-11-07) | ✅ **500/500 `COMPLETE`, 0 lost, 0 failed, 89/89 planted issues found**, 14,981 rows. Account Lambda concurrency limit: **10**; analyze peaked at 10 with **13 throttles, all absorbed by the throttling retry policy** (DLQ unchanged). Per-file latency p50 0.33 s · p95 0.50 s · max 3.69 s (a throttled file waiting out its retry). Upload from a home connection took 2 m 15 s; the last result landed about 5 s after the last upload, so the pipeline kept pace and the network was the bottleneck. Average duration: validate 4 ms, analyze 217 ms. |
-| Incident drill (throttle → DLQ → fix → redrive) | _ |
+| Incident drill (2026-11-07) | ✅ analyze set to reserved concurrency 0 at 15:11 UTC → throttling retries used up → `MarkFailed → SendToDLQ → ProcessingFailed`, alarm `ALARM` · fix applied, `redrive-dlq.sh` replayed the file → **`COMPLETE` in 3.9 s** (10 rows, 0 issues) · invalid `not-a-csv.txt` skipped, not replayed · DLQ empty, alarm back to **`OK`** · Found and fixed: the dry run's read hid messages for 60 s, so the real run that followed missed one; dry runs now use visibility timeout 0 |
 | Cost per 1,000 documents | **≈ $0.19** (see breakdown below) |
 
 ## Cost
