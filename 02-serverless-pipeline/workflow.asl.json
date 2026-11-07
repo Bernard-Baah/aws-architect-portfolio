@@ -17,6 +17,7 @@
     },
     "Validate": {
       "Type": "Task",
+      "Comment": "Throttling (bursts) gets its own long retry: up to 10 attempts, each wait capped at 30s (about 3 min worst case).",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "FunctionName": "${validate_function_arn}",
@@ -25,7 +26,15 @@
       "ResultPath": null,
       "Retry": [
         {
-          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"],
+          "ErrorEquals": ["Lambda.TooManyRequestsException"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 10,
+          "BackoffRate": 2,
+          "MaxDelaySeconds": 30,
+          "JitterStrategy": "FULL"
+        },
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
           "IntervalSeconds": 2,
           "MaxAttempts": 4,
           "BackoffRate": 2,
@@ -39,7 +48,7 @@
     },
     "RecordReceived": {
       "Type": "Task",
-      "Comment": "Idempotency: the conditional put fails if this upload was already processed.",
+      "Comment": "Idempotency: the conditional put fails if this upload is already PROCESSING or COMPLETE. A FAILED item may be reprocessed (DLQ redrive).",
       "Resource": "arn:aws:states:::dynamodb:putItem",
       "Parameters": {
         "TableName": "${table_name}",
@@ -51,7 +60,9 @@
           "object_key": {"S.$": "$.doc.key"},
           "execution_arn": {"S.$": "$$.Execution.Id"}
         },
-        "ConditionExpression": "attribute_not_exists(doc_id)"
+        "ConditionExpression": "attribute_not_exists(doc_id) OR #s = :failed",
+        "ExpressionAttributeNames": {"#s": "status"},
+        "ExpressionAttributeValues": {":failed": {"S": "FAILED"}}
       },
       "ResultPath": null,
       "Retry": [
@@ -75,6 +86,7 @@
     },
     "Analyze": {
       "Type": "Task",
+      "Comment": "Same retry policy as Validate: long for throttling, short for other Lambda service errors.",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
         "FunctionName": "${analyze_function_arn}",
@@ -91,7 +103,15 @@
       "ResultPath": "$.analysis",
       "Retry": [
         {
-          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"],
+          "ErrorEquals": ["Lambda.TooManyRequestsException"],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 10,
+          "BackoffRate": 2,
+          "MaxDelaySeconds": 30,
+          "JitterStrategy": "FULL"
+        },
+        {
+          "ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException"],
           "IntervalSeconds": 2,
           "MaxAttempts": 4,
           "BackoffRate": 2,
