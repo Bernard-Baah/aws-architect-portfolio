@@ -81,8 +81,20 @@ terraform init
 terraform apply
 ```
 
+## Deploy layer 2c: AWS Config
+Security Hub scores accounts from AWS Config, so every account records its resources first:
+- **Member accounts:** a service-managed CloudFormation **StackSet** targeted at the org root, with auto-deployment. Any account created later gets a recorder automatically. Its stacks run as a service-linked role, which SCPs don't restrict.
+- **Management account:** StackSets never deploy there, so Terraform creates its recorder directly (`modules/config-recorder`).
+- **Delivery:** one bucket in Log Archive. Only principals in this organization named `config-recorder-*` can write, and only under their own account's prefix.
+- **Daily** recording instead of continuous keeps cost to cents for quiet lab accounts. Global resources (IAM) are recorded in us-east-1 only.
+
+One-time prerequisite (management account):
+```bash
+aws cloudformation activate-organizations-access
+```
+
 ## Cost
-Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. GuardDuty has a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
+Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. GuardDuty has a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
 ## Teardown (read before deploying)
 - `terraform destroy` **closes** the member accounts (`close_on_deletion = true`) rather than removing them, because a removed account would need its own payment method and root login.
@@ -97,7 +109,8 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. GuardD
 - [x] Centralized root access for member accounts
 - [x] Org CloudTrail → Log Archive (Object Lock, KMS)
 - [x] GuardDuty delegated to Audit (both regions, auto-enable all members)
-- [ ] Security Hub delegated to Audit + AWS Config recorders
+- [x] AWS Config in every account and both regions (StackSet for members, Terraform for management)
+- [ ] Security Hub delegated to Audit (central configuration, FSBP)
 - [ ] EventBridge → Lambda auto-response for high-severity findings
 - [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
