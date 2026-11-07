@@ -130,6 +130,11 @@ on-call engineer fixes the cause and replays the dead-letter queue.
    ```
    In **Step Functions → Executions**, the run sits in `Analyze` retrying for about 3 minutes, then
    goes `MarkFailed → SendToDLQ`. The DLQ alarm goes to `ALARM`.
+
+   ![Step Functions graph of the drill run: Prepare, Validate and RecordReceived succeed; Analyze shows a warning after its throttling retries run out; the Catch routes to MarkFailed, then SendToDLQ, then the ProcessingFailed fail state](../docs/diagrams/02-incident-drill-graph.png)
+
+   *The drill run on 2026-11-07: `Analyze` used up its throttling retries, and the Catch routed the
+   file through `MarkFailed → SendToDLQ → ProcessingFailed`. Nothing was lost.*
 2. **Fix it:**
    ```bash
    aws lambda delete-function-concurrency --function-name inventory-pipeline-analyze
