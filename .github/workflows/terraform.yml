@@ -97,9 +97,12 @@ jobs:
           - 01-ha-web-app
           - 02-serverless-pipeline
           - 03-multi-region-dr
+          - 04-landing-zone/organization
     env:
       TF_STATE_BUCKET: bernard-tfstate-40b007
       TF_VAR_state_bucket_name: bernard-tfstate-40b007
+      # Member-account mailbox for 04-landing-zone (a secret, so it's masked)
+      TF_VAR_email_base: ${{ secrets.LZ_EMAIL_BASE }}
     steps:
       - uses: actions/checkout@v4
 
