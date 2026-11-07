@@ -16,6 +16,12 @@ variable "audit_account_id" {
   type        = string
 }
 
+variable "members" {
+  description = "Account ID => root email of every other org account to enroll now (auto-enable only reaches existing accounts eventually)"
+  type        = map(string)
+  default     = {}
+}
+
 # Enable GuardDuty in the admin account first. Designating an admin that has no
 # detector makes GuardDuty create one itself, which Terraform then can't adopt.
 resource "aws_guardduty_detector" "audit" {
@@ -43,6 +49,24 @@ resource "aws_guardduty_organization_configuration" "this" {
   auto_enable_organization_members = "ALL"
 
   depends_on = [aws_guardduty_organization_admin_account.this]
+}
+
+# auto_enable "ALL" covers new accounts immediately but enrolls existing ones
+# in the background, which can take hours. Adding them explicitly enrolls
+# them now (no invitation needed for accounts in the same organization).
+resource "aws_guardduty_member" "this" {
+  provider = aws.audit
+  for_each = var.members
+
+  detector_id = aws_guardduty_detector.audit.id
+  account_id  = each.key
+  email       = each.value
+
+  lifecycle {
+    ignore_changes = [email, invite]
+  }
+
+  depends_on = [aws_guardduty_organization_configuration.this]
 }
 
 output "audit_detector_id" {
