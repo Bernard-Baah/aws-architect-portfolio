@@ -83,15 +83,13 @@ terraform apply
 
 ## Deploy layer 2c: AWS Config
 Security Hub scores accounts from AWS Config, so every account records its resources first:
-- **Member accounts:** a service-managed CloudFormation **StackSet** targeted at the org root, with auto-deployment. Any account created later gets a recorder automatically. Its stacks run as a service-linked role, which SCPs don't restrict.
-- **Management account:** StackSets never deploy there, so Terraform creates its recorder directly (`modules/config-recorder`).
-- **Delivery:** one bucket in Log Archive. Only principals in this organization named `config-recorder-*` can write, and only under their own account's prefix.
+- **Every account, both regions:** `modules/account-config` (recorder role + daily recorder + delivery channel), one call per account.
+- **Delivery:** one bucket in Log Archive. Only principals in this organization named `config-recorder*` can write, and only under their own account's prefix.
 - **Daily** recording instead of continuous keeps cost to cents for quiet lab accounts. Global resources (IAM) are recorded in us-east-1 only.
 
-One-time prerequisite (management account):
-```bash
-aws cloudformation activate-organizations-access
-```
+**Lesson learned: why not a StackSet?** The first version used a service-managed CloudFormation StackSet so new accounts would get Config automatically. Every stack failed with "AWS::Config::ConfigurationRecorder ... did not stabilize". CloudFormation's recorder resource starts recording as soon as it's created, which needs a delivery channel, but a delivery channel can't be created without a recorder, so the two deadlock. Terraform creates the recorder stopped, adds the channel, then starts recording. Trade-off: a new account needs one more module call (Control Tower or a StackSet with a custom resource would automate it).
+
+**Second lesson: the guardrails stopped our own cleanup.** Deleting the failed stacks also failed in the accounts where a recorder had been created. StackSet stacks in member accounts run as a normal IAM execution role, not a service-linked role, so the guardrails SCP's deny on `config:DeleteConfigurationRecorder` applied to CloudFormation too. Fix: detach those stack instances with `--retain-stacks`, then delete the stacks directly as `OrganizationAccountAccessRole`, the one role the SCP exempts. The guardrail worked exactly as designed; the cleanup path just has to go through the exempt role.
 
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. GuardDuty has a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
@@ -109,7 +107,7 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 - [x] Centralized root access for member accounts
 - [x] Org CloudTrail → Log Archive (Object Lock, KMS)
 - [x] GuardDuty delegated to Audit (both regions, auto-enable all members)
-- [x] AWS Config in every account and both regions (StackSet for members, Terraform for management)
+- [x] AWS Config in every account and both regions (Terraform module per account)
 - [ ] Security Hub delegated to Audit (central configuration, FSBP)
 - [ ] EventBridge → Lambda auto-response for high-severity findings
 - [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
