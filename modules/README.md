@@ -9,4 +9,5 @@ Reusable modules consumed by the project folders. Planned:
 - `edge/` ✅: CloudFront VPC origin to an internal ALB (optional second-region origin group for failover), distribution with managed cache/security-header policies, AWS WAF (rate limit + 3 AWS managed rule groups) in us-east-1 (Project 01, reused in 03)
 - `app-region/` ✅: one region's app tier (network + security group chain + web tier), instantiated per region by Project 03
 - `org-guardduty/` ✅: GuardDuty for a whole organization in one region, delegated to a security account with auto-enable for every member (Project 04, once per allowed region)
-- `config-recorder/` ✅: AWS Config recorder (daily) + delivery channel for one account and region (Project 04 management account; members get the same via a StackSet)
+- `config-recorder/` ✅: AWS Config recorder (daily) + delivery channel for one account and region (used by `account-config`)
+- `account-config/` ✅: Config baseline for one account: recorder role + recorders in home and secondary region (Project 04, once per account)
