@@ -94,6 +94,8 @@ Security Hub scores accounts from AWS Config, so every account records its resou
 ## Deploy layer 2d: Security Hub
 Security Hub CSPM with **central configuration**: Audit is the delegated admin, us-east-1 is the home region (findings from us-west-2 aggregate there), and a single configuration policy associated with the org root turns on **AWS Foundational Security Best Practices** in every current and future account. Members can't opt out; only the admin's policy decides.
 
+**Lesson learned:** the first apply stopped at central configuration with `ResourceNotFoundException: Central configuration couldn't be enabled because data from organization ... is still syncing. Retry later.` Delegating the admin starts an asynchronous copy of the organization's account list into Security Hub. The 4 resources already created were kept in state; re-running `terraform apply` about 15 minutes later created the remaining 3 (central configuration took 1m09s, the root association 1m31s).
+
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
