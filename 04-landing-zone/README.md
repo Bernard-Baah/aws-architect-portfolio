@@ -91,8 +91,11 @@ Security Hub scores accounts from AWS Config, so every account records its resou
 
 **Second lesson: the guardrails stopped our own cleanup.** Deleting the failed stacks also failed in the accounts where a recorder had been created. StackSet stacks in member accounts run as a normal IAM execution role, not a service-linked role, so the guardrails SCP's deny on `config:DeleteConfigurationRecorder` applied to CloudFormation too. Fix: detach those stack instances with `--retain-stacks`, then delete the stacks directly as `OrganizationAccountAccessRole`, the one role the SCP exempts. The guardrail worked exactly as designed; the cleanup path just has to go through the exempt role.
 
+## Deploy layer 2d: Security Hub
+Security Hub CSPM with **central configuration**: Audit is the delegated admin, us-east-1 is the home region (findings from us-west-2 aggregate there), and a single configuration policy associated with the org root turns on **AWS Foundational Security Best Practices** in every current and future account. Members can't opt out; only the admin's policy decides.
+
 ## Cost
-Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. GuardDuty has a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
+Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
 ## Teardown (read before deploying)
 - `terraform destroy` **closes** the member accounts (`close_on_deletion = true`) rather than removing them, because a removed account would need its own payment method and root login.
@@ -108,7 +111,7 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 - [x] Org CloudTrail → Log Archive (Object Lock, KMS)
 - [x] GuardDuty delegated to Audit (both regions, auto-enable all members)
 - [x] AWS Config in every account and both regions (Terraform module per account)
-- [ ] Security Hub delegated to Audit (central configuration, FSBP)
+- [x] Security Hub delegated to Audit (central configuration, FSBP in every account, us-west-2 linked)
 - [ ] EventBridge → Lambda auto-response for high-severity findings
 - [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
