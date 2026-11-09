@@ -11,3 +11,4 @@ Reusable modules consumed by the project folders. Planned:
 - `org-guardduty/` ✅: GuardDuty for a whole organization in one region, delegated to a security account with auto-enable for every member (Project 04, once per allowed region)
 - `config-recorder/` ✅: AWS Config recorder (daily) + delivery channel for one account and region (used by `account-config`)
 - `account-config/` ✅: Config baseline for one account: recorder role + recorders in home and secondary region (Project 04, once per account)
+- `account-hardening/` ✅: free account-wide settings that clear common FSBP failures (S3 + EBS snapshot public access blocks, EBS default encryption, SSM public-sharing block and Automation logging, IAM password policy) (Project 04, once per account)
