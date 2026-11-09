@@ -109,6 +109,8 @@ Most baseline failures came in tens: one per account per region, which means acc
 | SSM Automation output logged to CloudWatch | SSM.6 | 10 |
 | Delete unused default VPCs (`scripts/delete-default-vpcs.sh`, dry run by default, skips any VPC with network interfaces) | EC2.2, EC2.6, EC2.10, EC2.15, EC2.55–58, EC2.60 | ~140 |
 
+**Default VPC result:** 9 of 10 deleted. The script skipped the management account's us-east-1 default VPC because it still had 2 network interfaces: a 2023 test instance (terminated) and a stopped instance belonging to a separate personal project (kept). That VPC stays on purpose until that workload moves into its own member account, which is the landing-zone way to separate it from the management account.
+
 Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly), **Config.1** (wants Config's service-linked role instead of the custom recorder role), **Account.1** (needs a real security contact phone number).
 
 ## Cost
