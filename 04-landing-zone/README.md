@@ -96,6 +96,21 @@ Security Hub CSPM with **central configuration**: Audit is the delegated admin, 
 
 **Lesson learned:** the first apply stopped at central configuration with `ResourceNotFoundException: Central configuration couldn't be enabled because data from organization ... is still syncing. Retry later.` Delegating the admin starts an asynchronous copy of the organization's account list into Security Hub. The 4 resources already created were kept in state; re-running `terraform apply` about 15 minutes later created the remaining 3 (central configuration took 1m09s, the root association 1m31s).
 
+## Layer 3a: hardening from the baseline findings
+Most baseline failures came in tens: one per account per region, which means account settings rather than resources. Fixed in code (`modules/account-hardening`, once per account):
+
+| Fix | Controls | Baseline failed checks |
+|---|---|---|
+| Block public sharing of SSM documents | SSM.7 (critical) | 10 |
+| Block public EBS snapshot sharing | EC2.182 (high) | 10 |
+| EBS encryption by default | EC2.7 | 10 |
+| Account-level S3 Block Public Access | S3.1 | 10 |
+| IAM password policy (14+ chars, all classes, no reuse of last 24, no forced expiry per NIST 800-63B) | IAM.7 | 10 |
+| SSM Automation output logged to CloudWatch | SSM.6 | 10 |
+| Delete unused default VPCs (`scripts/delete-default-vpcs.sh`, dry run by default, skips any VPC with network interfaces) | EC2.2, EC2.6, EC2.10, EC2.15, EC2.55–58, EC2.60 | ~140 |
+
+Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly), **Config.1** (wants Config's service-linked role instead of the custom recorder role), **Account.1** (needs a real security contact phone number).
+
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
@@ -114,6 +129,7 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 - [x] GuardDuty delegated to Audit (both regions, auto-enable all members)
 - [x] AWS Config in every account and both regions (Terraform module per account)
 - [x] Security Hub delegated to Audit (central configuration, FSBP in every account, us-west-2 linked)
+- [x] Free account-wide hardening from the Security Hub baseline (layer 3a)
 - [ ] EventBridge → Lambda auto-response for high-severity findings
 - [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
