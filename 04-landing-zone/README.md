@@ -119,9 +119,11 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
 
 ## Results
-| Metric | Before | After |
+| Metric (FSBP v1.0.0, 5 accounts × 2 regions) | Before (baseline) | After (layer 3) |
 |--------|--------|-------|
-| Security Hub FSBP score | _% | _% |
+| Security Hub security score | **92%** (342 passed / 29 failed controls) | _% |
+| Failed checks | 214 / 3,533 | _ |
+| Failed by severity | 26 critical · 54 high · 134 medium · 0 low | _ |
 
 | Layer 1 deploy | Result |
 |----------------|--------|
