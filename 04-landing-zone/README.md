@@ -83,7 +83,7 @@ terraform apply
 
 ## Deploy layer 2c: AWS Config
 Security Hub scores accounts from AWS Config, so every account records its resources first:
-- **Every account, both regions:** `modules/account-config` (recorder role + daily recorder + delivery channel), one call per account.
+- **Every account, both regions:** `modules/account-config` (Config's service-linked role + daily recorder + delivery channel), one call per account. The first version used a custom recorder role; Security Hub's critical control **Config.1** requires the service-linked role, so the recorders were switched in place.
 - **Delivery:** one bucket in Log Archive. Only principals in this organization named `config-recorder*` can write, and only under their own account's prefix.
 - **Daily** recording instead of continuous keeps cost to cents for quiet lab accounts. Global resources (IAM) are recorded in us-east-1 only.
 
@@ -111,7 +111,7 @@ Most baseline failures came in tens: one per account per region, which means acc
 
 **Default VPC result:** 9 of 10 deleted. The script skipped the management account's us-east-1 default VPC because it still had 2 network interfaces: a 2023 test instance (terminated) and a stopped instance belonging to a separate personal project (kept). That VPC stays on purpose until that workload moves into its own member account, which is the landing-zone way to separate it from the management account.
 
-Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly), **Config.1** (wants Config's service-linked role instead of the custom recorder role), **Account.1** (needs a real security contact phone number).
+Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly), **Account.1** (needs a real security contact phone number).
 
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
