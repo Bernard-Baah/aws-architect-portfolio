@@ -152,11 +152,11 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
 
 ## Results
-| Metric (FSBP v1.0.0, 5 accounts × 2 regions) | First reading | Day 2 (after layer 3a) |
-|--------|--------|-------|
-| Security Hub security score | 92% (342 passed / 29 failed controls) | 87% (323 passed / 48 failed controls) |
-| Failed checks | 214 / 3,533 | 236 / 3,666 |
-| Failed by severity | 26 critical · 54 high · 134 medium · 0 low | **16 critical** · 78 high · 132 medium · 10 low |
+| Metric (FSBP v1.0.0, 5 accounts × 2 regions) | First reading | Day 2 (after layer 3a) | Day 3 (all fixes) |
+|--------|--------|-------|-------|
+| Security Hub security score | 92% (342 passed / 29 failed controls) | 87% (323 passed / 48 failed controls) | **88%** (326 passed / 45 failed) |
+| Failed checks | 214 / 3,533 | 236 / 3,666 | **152 / 3,660** (−36% vs day 2) |
+| Failed by severity | 26 critical · 54 high · 134 medium · 0 low | 16 critical · 78 high · 132 medium · 10 low | **12 critical** · 59 high · 71 medium · 10 low |
 
 **Why the score went *down* after fixing things.** The first reading was taken a few hours after AWS Config started, before its first full snapshot, so Security Hub hadn't evaluated every resource yet (+133 checks the next day, including the new log buckets, KMS key and IAM roles). And the score counts **controls**, not checks: a control fails if a single resource fails it. One default VPC kept on purpose in the management account (it hosts a separate workload) keeps ~9 VPC controls failing org-wide on its own. The per-control check counts show what the fixes actually did:
 
@@ -167,6 +167,8 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 | EC2.10 · EC2.55–58 · EC2.60 | 10 each | 1 each (the kept VPC) |
 | EC2.15 | 50 | 20 (deleted subnets still ageing out) |
 | Config.1 (critical) | 10 | 10 → fixed day 2 by switching to the service-linked role (all 10 recorders confirmed on `AWSServiceRoleForConfig`) |
+
+Day 3, after Config.1, Account.1 and CloudTrail.5 were fixed: failed checks fell from 236 to 152 and critical from 16 to 12. Most of what remains is the deferred paid services (Inspector, Macie, extra GuardDuty plans) and the one default VPC kept on purpose.
 
 Lesson: measure a baseline only after the data source has completed a full cycle, and report per-control results next to the headline score.
 
