@@ -1,6 +1,6 @@
 # 04 · Secure multi-account landing zone
 
-> **Status:** 🚧 In progress (layer 1 deployed; layer 2 in progress)
+> **Status:** 🚧 In progress (layers 1–2 and hardening deployed; Identity Center in progress)
 
 ## Problem
 Projects 01–03 ran in one account where any admin could do anything, anywhere. Real companies split workloads, logs and security tooling across accounts so that one compromised or careless identity can't erase the evidence or switch off detection. This project turns the portfolio account into the management account of an AWS Organization with guardrails, central logging and central security findings, all in Terraform.
@@ -114,6 +114,17 @@ Most baseline failures came in tens: one per account per region, which means acc
 
 Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly).
 
+## Layer 3b: IAM Identity Center
+People sign in once at the access portal and choose an account and role. No IAM users or long-lived keys exist in member accounts. The Identity Center instance already existed from the earlier project, so `identity/` reads it with a data source and adds only `LZ-`-prefixed resources.
+
+| Permission set | Policy | Session | Assigned to `lz-platform-team` in |
+|---|---|---|---|
+| LZ-Admin | AdministratorAccess | 1 h | log-archive, audit, dev, prod |
+| LZ-PowerUser | PowerUserAccess | 4 h | dev |
+| LZ-ReadOnly | ReadOnlyAccess | 4 h | prod, audit |
+
+Access goes to a **group**, never directly to a user, so onboarding a teammate is one group membership. Each permission set becomes an `AWSReservedSSO_*` role in its accounts, and those roles are **not** exempt from the guardrails SCP: even LZ-Admin can't stop CloudTrail or delete GuardDuty.
+
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
@@ -134,7 +145,7 @@ Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Co
 - [x] Security Hub delegated to Audit (central configuration, FSBP in every account, us-west-2 linked)
 - [x] Free account-wide hardening from the Security Hub baseline (layer 3a)
 - [ ] EventBridge → Lambda auto-response for high-severity findings
-- [ ] IAM Identity Center permission sets (Admin break-glass, PowerUser Dev, ReadOnly Prod)
+- [x] IAM Identity Center permission sets (Admin, PowerUser dev, ReadOnly prod/audit) via a group
 - [ ] Redeploy Project 01 into Dev via GitHub Actions + a per-account OIDC role
 
 ## Results
