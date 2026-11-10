@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1090" viewBox="0 0 1200 1090" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ah-2e5fa8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e5fa8"/></marker>
+<marker id="ah-16191f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16191f"/></marker>
+<marker id="ah-dd344c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dd344c"/></marker>
+<marker id="ah-5f6b7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6b7a"/></marker>
+<marker id="ah-1d8102" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d8102"/></marker>
+</defs>
+<rect width="1200" height="1090" fill="#ffffff"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#16191f" text-anchor="start">Project 04 · Secure multi-account landing zone</text>
+<text x="1160" y="44" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="end">github.com/Bernard-Baah/aws-architect-portfolio</text>
+<text x="40" y="68" font-size="13.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">One organization, guardrails at the root, and every account logged, recorded and scored from two security accounts.</text>
+<rect x="40" y="92" width="200" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="40" y="92" width="5" height="56" rx="2" fill="#1d8102"/>
+<text x="54" y="112" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">You · bernard.baah</text>
+<text x="54" y="128" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">password + MFA, no IAM keys</text>
+<rect x="40" y="172" width="1120" height="598" rx="10" fill="none" stroke="#7d8998" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="56" y="194" font-size="14" font-weight="700" fill="#16191f" text-anchor="start">AWS Organization · all features · adopted with terraform import</text>
+<rect x="56" y="206" width="1088" height="118" rx="8" fill="#fafbfc" stroke="#c6ccd5" stroke-width="1.5"/>
+<text x="72" y="226" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Management account</text>
+<text x="1128" y="226" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="end">no workloads · SCPs never apply here, so nothing runs here</text>
+<rect x="72" y="238" width="250" height="72" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="72" y="238" width="5" height="72" rx="2" fill="#8c4fff"/>
+<text x="86" y="258" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Organizations</text>
+<text x="86" y="274" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">3 OUs · 4 member accounts</text>
+<text x="86" y="290" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">root access centralized (no root</text>
+<text x="86" y="306" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">passwords in members)</text>
+<rect x="338" y="238" width="250" height="72" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="338" y="238" width="5" height="72" rx="2" fill="#1d8102"/>
+<text x="352" y="258" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">IAM Identity Center</text>
+<text x="352" y="274" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">group lz-platform-team</text>
+<text x="352" y="290" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">LZ-Admin (1 h) · LZ-PowerUser</text>
+<text x="352" y="306" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">LZ-ReadOnly</text>
+<rect x="604" y="238" width="250" height="72" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="604" y="238" width="5" height="72" rx="2" fill="#2e5fa8"/>
+<text x="618" y="258" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Organization CloudTrail</text>
+<text x="618" y="274" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">every account · every region</text>
+<text x="618" y="290" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">log file validation</text>
+<text x="618" y="306" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">SSE-KMS (Log Archive key)</text>
+<rect x="870" y="238" width="258" height="72" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="870" y="238" width="5" height="72" rx="2" fill="#2e5fa8"/>
+<text x="884" y="258" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">CloudWatch Logs</text>
+<text x="884" y="274" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">/aws/cloudtrail/org-trail</text>
+<text x="884" y="290" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Logs Insights across 5 accounts</text>
+<text x="884" y="306" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">90-day retention</text>
+<polyline points="854,274 868,274" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<rect x="56" y="336" width="1088" height="40" rx="6" fill="#fdf3f4" stroke="#dd344c" stroke-width="1.5"/>
+<text x="72" y="361" font-size="13" font-weight="700" fill="#dd344c" text-anchor="start">Root SCPs</text>
+<text x="160" y="361" font-size="12" font-weight="normal" fill="#16191f" text-anchor="start">guardrails: can't leave the org, can't disable CloudTrail · Config · GuardDuty · Security Hub, no root user  |  region allow-list: us-east-1 + us-west-2</text>
+<rect x="56" y="390" width="560" height="236" rx="8" fill="none" stroke="#8c4fff" stroke-width="2"/>
+<text x="72" y="412" font-size="13" font-weight="700" fill="#8c4fff" text-anchor="start">Security OU</text>
+<rect x="72" y="426" width="260" height="186" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="72" y="426" width="5" height="186" rx="2" fill="#2e5fa8"/>
+<text x="86" y="446" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Log Archive</text>
+<text x="86" y="462" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">org-cloudtrail bucket</text>
+<text x="86" y="478" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· Object Lock (governance)</text>
+<text x="86" y="494" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· SSE-KMS, own CMK</text>
+<text x="86" y="510" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· TLS only, writes from this trail only</text>
+<text x="86" y="526" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">org-config bucket</text>
+<text x="86" y="542" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· Config snapshots from all accounts</text>
+<text x="86" y="558" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· org-only, own prefix per account</text>
+<rect x="344" y="426" width="256" height="186" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="344" y="426" width="5" height="186" rx="2" fill="#dd344c"/>
+<text x="358" y="446" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Audit (delegated admin)</text>
+<text x="358" y="462" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">GuardDuty: all members, 2 regions</text>
+<text x="358" y="478" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Security Hub CSPM</text>
+<text x="358" y="494" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· central configuration</text>
+<text x="358" y="510" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· FSBP policy on the org root</text>
+<text x="358" y="526" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· us-west-2 findings aggregated</text>
+<text x="358" y="542" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">· into us-east-1</text>
+<text x="358" y="558" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Org CloudTrail logs: decrypt only</text>
+<rect x="632" y="390" width="336" height="236" rx="8" fill="none" stroke="#8c4fff" stroke-width="2"/>
+<text x="648" y="412" font-size="13" font-weight="700" fill="#8c4fff" text-anchor="start">Workloads OU</text>
+<rect x="648" y="426" width="304" height="86" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="648" y="426" width="5" height="86" rx="2" fill="#ed7100"/>
+<text x="662" y="446" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">dev</text>
+<text x="662" y="462" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Identity Center: LZ-Admin, LZ-PowerUser</text>
+<text x="662" y="478" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">adopted from an earlier org</text>
+<text x="662" y="494" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">(name and email kept)</text>
+<rect x="648" y="526" width="304" height="86" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="648" y="526" width="5" height="86" rx="2" fill="#ed7100"/>
+<text x="662" y="546" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">prod</text>
+<text x="662" y="562" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Identity Center: LZ-Admin, LZ-ReadOnly</text>
+<text x="662" y="578" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">adopted from an earlier org</text>
+<text x="662" y="594" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">(name and email kept)</text>
+<rect x="984" y="390" width="160" height="236" rx="8" fill="none" stroke="#8c4fff" stroke-width="2"/>
+<text x="1000" y="412" font-size="13" font-weight="700" fill="#8c4fff" text-anchor="start">Sandbox OU</text>
+<text x="1064" y="510" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="middle">(empty, for</text>
+<text x="1064" y="528" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="middle">experiments)</text>
+<rect x="56" y="654" width="1088" height="100" rx="8" fill="#fafbfc" stroke="#c6ccd5" stroke-width="1.5"/>
+<text x="72" y="676" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Baseline in every account × us-east-1 + us-west-2 (Terraform modules)</text>
+<text x="72" y="698" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">AWS Config (service-linked role, daily) · GuardDuty member · Security Hub FSBP · security contact on file</text>
+<text x="72" y="718" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">S3 + EBS snapshot public access blocked · EBS encrypted by default · SSM documents can't be shared publicly</text>
+<text x="72" y="738" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">IAM password policy (NIST 800-63B) · unused default VPCs deleted (script skips any VPC in use)</text>
+<polyline points="240,120 560,120 560,236" fill="none" stroke="#1d8102" stroke-width="1.8" marker-end="url(#ah-1d8102)" stroke-linejoin="round"/>
+<text x="400" y="112" font-size="11" font-weight="600" fill="#1d8102" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">access portal</text>
+<polyline points="500,310 500,330 940,330 940,424" fill="none" stroke="#1d8102" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-1d8102)" stroke-linejoin="round"/>
+<text x="932" y="386" font-size="11" font-weight="600" fill="#1d8102" text-anchor="end" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">LZ-* roles, still bound by SCPs</text>
+<polyline points="729,310 729,384 300,384 300,424" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="470" y="380" font-size="11" font-weight="600" fill="#2e5fa8" text-anchor="middle" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">logs from all 5 accounts</text>
+<polyline points="140,652 140,614" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="148" y="644" font-size="11" font-weight="600" fill="#2e5fa8" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">Config snapshots</text>
+<polyline points="420,652 420,614" fill="none" stroke="#dd344c" stroke-width="1.8" marker-end="url(#ah-dd344c)" stroke-linejoin="round"/>
+<text x="428" y="644" font-size="11" font-weight="600" fill="#dd344c" text-anchor="start" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">findings</text>
+<rect x="40" y="794" width="540" height="236" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="56" y="818" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Tested, 2026-11-07 → 11-10</text>
+<text x="56" y="844" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">eu-west-1 call from dev, as an account admin</text>
+<text x="566" y="844" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">denied · SCP</text>
+<text x="56" y="867" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Stop Config in dev as Identity Center LZ-Admin</text>
+<text x="566" y="867" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">denied · SCP</text>
+<text x="56" y="890" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Stop the org trail from dev</text>
+<text x="566" y="890" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">denied · owned by mgmt</text>
+<text x="56" y="913" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Delete a trail log as Log Archive admin</text>
+<text x="566" y="913" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">denied · Object Lock</text>
+<text x="56" y="936" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Accounts in one Logs Insights query</text>
+<text x="566" y="936" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">5 / 5</text>
+<text x="56" y="959" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">GuardDuty members managed from Audit</text>
+<text x="566" y="959" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">4 / 4</text>
+<text x="56" y="982" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Config recorders delivering centrally</text>
+<text x="566" y="982" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">10 / 10</text>
+<text x="56" y="1005" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Security Hub policy associations</text>
+<text x="566" y="1005" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">9 / 9 SUCCESS</text>
+<rect x="620" y="794" width="540" height="236" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="636" y="818" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Security Hub FSBP, failed checks org-wide</text>
+<text x="636" y="844" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Critical (whole org)</text>
+<text x="1146" y="844" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">26 → 16 (day 2)</text>
+<text x="636" y="867" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">SSM.7 · documents publicly shareable (critical)</text>
+<text x="1146" y="867" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">10 → 0</text>
+<text x="636" y="890" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">S3.1 · EC2.7 · SSM.6</text>
+<text x="1146" y="890" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">10 → 0 each</text>
+<text x="636" y="913" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Default-VPC controls (EC2.10, .55–.58, .60)</text>
+<text x="1146" y="913" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">10 → 1 each</text>
+<text x="636" y="936" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Config.1 (critical) · Account.1 · CloudTrail.5</text>
+<text x="1146" y="936" font-size="12" font-weight="700" fill="#b26200" text-anchor="end">fixed, re-score due</text>
+<text x="636" y="959" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Inspector · Macie · extra GuardDuty plans</text>
+<text x="1146" y="959" font-size="12" font-weight="700" fill="#b26200" text-anchor="end">deferred (paid)</text>
+<text x="636" y="994" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start" font-style="italic">Headline score fell 92% → 87% on day 2: the first reading ran before</text>
+<text x="636" y="1012" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start" font-style="italic">Config's first full snapshot. Per-control counts show the real change.</text>
+<polyline points="40,1062 84,1062" fill="none" stroke="#1d8102" stroke-width="1.8" marker-end="url(#ah-1d8102)" stroke-linejoin="round"/>
+<text x="92" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">sign-in / access</text>
+<polyline points="230,1062 274,1062" fill="none" stroke="#2e5fa8" stroke-width="1.8" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="282" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">logs + snapshots</text>
+<polyline points="420,1062 464,1062" fill="none" stroke="#dd344c" stroke-width="1.8" marker-end="url(#ah-dd344c)" stroke-linejoin="round"/>
+<text x="472" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">findings</text>
+<rect x="620" y="1053" width="5" height="16" rx="2" fill="#8c4fff"/>
+<text x="632" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">organization</text>
+<rect x="730" y="1053" width="5" height="16" rx="2" fill="#1d8102"/>
+<text x="742" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">identity</text>
+<rect x="840" y="1053" width="5" height="16" rx="2" fill="#2e5fa8"/>
+<text x="852" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">logging</text>
+<rect x="950" y="1053" width="5" height="16" rx="2" fill="#dd344c"/>
+<text x="962" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">security</text>
+<rect x="1060" y="1053" width="5" height="16" rx="2" fill="#ed7100"/>
+<text x="1072" y="1066" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">workloads</text>
+</svg>
