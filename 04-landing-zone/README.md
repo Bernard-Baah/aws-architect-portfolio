@@ -1,6 +1,6 @@
 # 04 · Secure multi-account landing zone
 
-> **Status:** 🚧 In progress (layers 1–2 and hardening deployed; Identity Center in progress)
+> **Status:** ✅ Core landing zone deployed and tested (organization, guardrails, logging, detection, hardening, Identity Center)
 
 ## Problem
 Projects 01–03 ran in one account where any admin could do anything, anywhere. Real companies split workloads, logs and security tooling across accounts so that one compromised or careless identity can't erase the evidence or switch off detection. This project turns the portfolio account into the management account of an AWS Organization with guardrails, central logging and central security findings, all in Terraform.
@@ -179,7 +179,14 @@ Lesson: measure a baseline only after the data source has completed a full cycle
 | `sts get-caller-identity` | ✅ Allowed: management account can administer dev |
 | `ec2 describe-vpcs` in us-east-1 | ✅ Allowed (allow-listed region) |
 | `ec2 describe-vpcs` in eu-west-1 | ⛔ **Denied**: "explicit deny in a service control policy" naming the `region-allowlist` policy |
-| _Disable CloudTrail in dev as a non-exempt admin_ | _Pending (layer 3 Identity Center user)_ |
+| Stop the org CloudTrail from dev as Identity Center **LZ-Admin** | ⛔ **Denied** by CloudTrail itself ("no permission to operate on this resource"): the org trail belongs to the management account, so members can't touch it at all |
+| Stop the Config recorder in dev as Identity Center **LZ-Admin** (`AWSReservedSSO_LZ-Admin_*`) | ⛔ **Denied**: "explicit deny in a service control policy" naming the `guardrails` policy. A full admin of the account still can't switch off the security baseline |
+
+| Identity Center test (layer 3b) | Result |
+|---------------------------------|--------|
+| Apply | 16 added, 0 destroyed (existing instance reused, `LZ-` names) |
+| Sign-in | Access portal with password + MFA; shows the 4 member accounts, never management |
+| Roles | dev → LZ-Admin, LZ-PowerUser; prod → LZ-Admin, LZ-ReadOnly; audit → LZ-Admin, LZ-ReadOnly; log-archive → LZ-Admin |
 
 | Org CloudTrail test (layer 2a) | Result |
 |--------------------------------|--------|
