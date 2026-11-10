@@ -183,6 +183,11 @@ Lesson: measure a baseline only after the data source has completed a full cycle
 | Stop the org CloudTrail from dev as Identity Center **LZ-Admin** | ⛔ **Denied** by CloudTrail itself ("no permission to operate on this resource"): the org trail belongs to the management account, so members can't touch it at all |
 | Stop the Config recorder in dev as Identity Center **LZ-Admin** (`AWSReservedSSO_LZ-Admin_*`) | ⛔ **Denied**: "explicit deny in a service control policy" naming the `guardrails` policy. A full admin of the account still can't switch off the security baseline |
 
+| CloudTrail → CloudWatch Logs test | Result |
+|------------------------------------|--------|
+| Apply | 3 added, 1 changed, 0 destroyed |
+| Logs Insights `stats count(*) by recipientAccountId` over the first minutes | ✅ **All 5 accounts** in one log group (management 115, log-archive 16, audit 4, prod 2, dev 1) |
+
 | Identity Center test (layer 3b) | Result |
 |---------------------------------|--------|
 | Apply | 16 added, 0 destroyed (existing instance reused, `LZ-` names) |
