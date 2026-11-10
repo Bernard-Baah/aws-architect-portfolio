@@ -108,6 +108,7 @@ Most baseline failures came in tens: one per account per region, which means acc
 | IAM password policy (14+ chars, all classes, no reuse of last 24, no forced expiry per NIST 800-63B) | IAM.7 | 10 |
 | SSM Automation output logged to CloudWatch | SSM.6 | 10 |
 | Security alternate contact on every account (details in a gitignored `terraform.tfvars`) | Account.1 | 10 |
+| Org trail also streams to CloudWatch Logs (`/aws/cloudtrail/org-trail`, 90-day retention; S3 keeps the long-term copy) | CloudTrail.5 | 10 |
 | Delete unused default VPCs (`scripts/delete-default-vpcs.sh`, dry run by default, skips any VPC with network interfaces) | EC2.2, EC2.6, EC2.10, EC2.15, EC2.55–58, EC2.60 | ~140 |
 
 **Default VPC result:** 9 of 10 deleted. The script skipped the management account's us-east-1 default VPC because it still had 2 network interfaces: a 2023 test instance (terminated) and a stopped instance belonging to a separate personal project (kept). That VPC stays on purpose until that workload moves into its own member account, which is the landing-zone way to separate it from the management account.
