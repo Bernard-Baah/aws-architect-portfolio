@@ -107,11 +107,12 @@ Most baseline failures came in tens: one per account per region, which means acc
 | Account-level S3 Block Public Access | S3.1 | 10 |
 | IAM password policy (14+ chars, all classes, no reuse of last 24, no forced expiry per NIST 800-63B) | IAM.7 | 10 |
 | SSM Automation output logged to CloudWatch | SSM.6 | 10 |
+| Security alternate contact on every account (details in a gitignored `terraform.tfvars`) | Account.1 | 10 |
 | Delete unused default VPCs (`scripts/delete-default-vpcs.sh`, dry run by default, skips any VPC with network interfaces) | EC2.2, EC2.6, EC2.10, EC2.15, EC2.55–58, EC2.60 | ~140 |
 
 **Default VPC result:** 9 of 10 deleted. The script skipped the management account's us-east-1 default VPC because it still had 2 network interfaces: a 2023 test instance (terminated) and a stopped instance belonging to a separate personal project (kept). That VPC stays on purpose until that workload moves into its own member account, which is the landing-zone way to separate it from the management account.
 
-Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly), **Account.1** (needs a real security contact phone number).
+Deferred on purpose: **Inspector.1–4, Macie.1, GuardDuty.5–13** (paid scanning/protection plans; decision documented rather than switched on blindly).
 
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
