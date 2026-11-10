@@ -165,11 +165,12 @@ for label, value, color in rows:
 rect(620, CY, 540, 236, "#d5dbe3", "#fafbfc", rx=8)
 text(636, CY + 24, "Security Hub FSBP, failed checks org-wide", size=13, weight="700")
 rows = [
-    ("Critical (whole org)", "26 → 16 (day 2)", OK),
-    ("SSM.7 · documents publicly shareable (critical)", "10 → 0", OK),
-    ("S3.1 · EC2.7 · SSM.6", "10 → 0 each", OK),
+    ("Failed checks, whole org", "236 → 152 (day 3)", OK),
+    ("Critical (whole org)", "26 → 12 (day 3)", OK),
+    ("SSM.7 (critical) · S3.1 · EC2.7 · SSM.6", "10 → 0 each", OK),
+    
     ("Default-VPC controls (EC2.10, .55–.58, .60)", "10 → 1 each", OK),
-    ("Config.1 (critical) · Account.1 · CloudTrail.5", "fixed, re-score due", PENDING),
+    ("Config.1 · Account.1 · CloudTrail.5", "fixed day 2–3", OK),
     ("Inspector · Macie · extra GuardDuty plans", "deferred (paid)", PENDING),
 ]
 y = CY + 50
@@ -177,8 +178,8 @@ for label, value, color in rows:
     text(636, y, label, size=12, fill=MUTED)
     text(1146, y, value, size=12, weight="700", fill=color, anchor="end")
     y += 23
-text(636, CY + 200, "Headline score fell 92% → 87% on day 2: the first reading ran before", size=11.5, fill=MUTED, italic=True)
-text(636, CY + 218, "Config's first full snapshot. Per-control counts show the real change.", size=11.5, fill=MUTED, italic=True)
+text(636, CY + 200, "Score 92% → 87% → 88%: the first reading ran before Config's", size=11.5, fill=MUTED, italic=True)
+text(636, CY + 218, "first full snapshot. Per-control and per-check counts show the real change.", size=11.5, fill=MUTED, italic=True)
 
 # ------------------------------------------------------------------ legend
 ly = 1062
