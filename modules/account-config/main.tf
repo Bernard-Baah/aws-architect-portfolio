@@ -1,5 +1,5 @@
-# AWS Config baseline for one account: a recorder role plus a daily recorder
-# and delivery channel in its home and secondary region.
+# AWS Config baseline for one account: Config's service-linked role plus a
+# daily recorder and delivery channel in its home and secondary region.
 #
 # Built in Terraform rather than a CloudFormation StackSet on purpose: CFN's
 # AWS::Config::ConfigurationRecorder starts recording as soon as it's created,
@@ -21,63 +21,14 @@ variable "delivery_bucket" {
   type        = string
 }
 
-variable "role_name" {
-  description = "Recorder role name; must start with config-recorder to match the bucket policy"
-  type        = string
-  default     = "config-recorder"
-}
-
-data "aws_caller_identity" "this" {
-  provider = aws.home
-}
-
-resource "aws_iam_role" "this" {
+# Security Hub Config.1 (critical) requires the recorder to use AWS Config's
+# service-linked role. Config then delivers to the central bucket as the
+# config.amazonaws.com service principal, which the bucket policy trusts for
+# this organization (aws:SourceOrgID).
+resource "aws_iam_service_linked_role" "config" {
   provider = aws.home
 
-  name = var.role_name
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { Service = "config.amazonaws.com" }
-      Action    = "sts:AssumeRole"
-      Condition = {
-        StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.this.account_id }
-      }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "this" {
-  provider = aws.home
-
-  role       = aws_iam_role.this.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
-}
-
-resource "aws_iam_role_policy" "delivery" {
-  provider = aws.home
-
-  name = "deliver-to-log-archive"
-  role = aws_iam_role.this.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect    = "Allow"
-        Action    = "s3:PutObject"
-        Resource  = "arn:aws:s3:::${var.delivery_bucket}/AWSLogs/${data.aws_caller_identity.this.account_id}/*"
-        Condition = { StringEquals = { "s3:x-amz-acl" = "bucket-owner-full-control" } }
-      },
-      {
-        Effect   = "Allow"
-        Action   = "s3:GetBucketAcl"
-        Resource = "arn:aws:s3:::${var.delivery_bucket}"
-      },
-    ]
-  })
+  aws_service_name = "config.amazonaws.com"
 }
 
 # Global resources (IAM) are recorded in the home region only.
@@ -88,11 +39,9 @@ module "home" {
     aws = aws.home
   }
 
-  role_arn        = aws_iam_role.this.arn
+  role_arn        = aws_iam_service_linked_role.config.arn
   delivery_bucket = var.delivery_bucket
   include_global  = true
-
-  depends_on = [aws_iam_role_policy.delivery, aws_iam_role_policy_attachment.this]
 }
 
 module "secondary" {
@@ -102,9 +51,7 @@ module "secondary" {
     aws = aws.secondary
   }
 
-  role_arn        = aws_iam_role.this.arn
+  role_arn        = aws_iam_service_linked_role.config.arn
   delivery_bucket = var.delivery_bucket
   include_global  = false
-
-  depends_on = [aws_iam_role_policy.delivery, aws_iam_role_policy_attachment.this]
 }

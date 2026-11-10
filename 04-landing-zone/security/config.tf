@@ -151,7 +151,6 @@ module "config_management" {
   }
 
   delivery_bucket = aws_s3_bucket.config.id
-  role_name       = "config-recorder-management"
 
   depends_on = [aws_s3_bucket_policy.config]
 }
@@ -206,31 +205,4 @@ module "config_prod" {
   delivery_bucket = aws_s3_bucket.config.id
 
   depends_on = [aws_s3_bucket_policy.config]
-}
-
-# The management account's recorder was created by the first version of this
-# file; move it into the module instead of destroying and recreating it.
-moved {
-  from = aws_iam_role.config_management
-  to   = module.config_management.aws_iam_role.this
-}
-
-moved {
-  from = aws_iam_role_policy_attachment.config_management
-  to   = module.config_management.aws_iam_role_policy_attachment.this
-}
-
-moved {
-  from = aws_iam_role_policy.config_management_delivery
-  to   = module.config_management.aws_iam_role_policy.delivery
-}
-
-moved {
-  from = module.config_management_use1
-  to   = module.config_management.module.home
-}
-
-moved {
-  from = module.config_management_usw2
-  to   = module.config_management.module.secondary
 }
