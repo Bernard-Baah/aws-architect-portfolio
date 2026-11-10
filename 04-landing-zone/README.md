@@ -2,6 +2,8 @@
 
 > **Status:** ✅ Core landing zone deployed and tested (organization, guardrails, logging, detection, hardening, Identity Center)
 
+![Project 04 architecture](../docs/diagrams/04-landing-zone.png)
+
 ## Problem
 Projects 01–03 ran in one account where any admin could do anything, anywhere. Real companies split workloads, logs and security tooling across accounts so that one compromised or careless identity can't erase the evidence or switch off detection. This project turns the portfolio account into the management account of an AWS Organization with guardrails, central logging and central security findings, all in Terraform.
 

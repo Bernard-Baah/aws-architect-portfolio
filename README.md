@@ -15,7 +15,7 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 | 1 | [HA multi-tier web app](01-ha-web-app/) | CloudFront + WAF → internal ALB → ASG → RDS Multi-AZ. Measured: 100% availability on graceful replacement, 96.5% on instance crash, 40 s DB failover | ✅ Done |
 | 2 | [Serverless event-driven pipeline](02-serverless-pipeline/) | S3 → EventBridge → Step Functions → Lambda/DynamoDB/SNS; IAM-auth query API. Measured: 500-file burst with 0 lost (10-concurrency account, throttles absorbed), ≈ $0.19 per 1,000 files, incident drill DLQ → redrive → alarm OK; 38 unit tests | ✅ Done |
 | 3 | [Multi-region disaster recovery](03-multi-region-dr/) | Warm standby us-east-1 → us-west-2: CloudFront origin failover, cross-region RDS replica, password never in state. Game day: **100% availability** through a primary-region outage, **writable in 9 min 15 s** (target 15) | ✅ Done |
-| 4 | [Multi-account landing zone](04-landing-zone/) | Organizations, SCPs, central logging, detection | 🚧 In progress |
+| 4 | [Multi-account landing zone](04-landing-zone/) | Adopted an existing AWS Organization into Terraform: guardrail SCPs, org CloudTrail into a locked Log Archive, GuardDuty + Config + Security Hub run from an Audit account, Identity Center SSO. Tested: an Identity Center **admin is denied** turning off Config by the SCP; critical Security Hub findings **26 → 16** on day 2 with the rest fixed | ✅ Done |
 | 5 | [Observability & FinOps](05-observability-finops/) | SLOs, alarms, tracing, cost optimization | ⏳ Planned |
 
 ## Project 01 at a glance
@@ -29,6 +29,10 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 ## Project 03 at a glance
 
 [![Project 03 architecture](docs/diagrams/03-multi-region-dr.svg)](03-multi-region-dr/)
+
+## Project 04 at a glance
+
+[![Project 04 architecture](docs/diagrams/04-landing-zone.svg)](04-landing-zone/)
 
 ## Repository layout
 
