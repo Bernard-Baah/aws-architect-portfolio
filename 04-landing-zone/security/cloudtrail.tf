@@ -225,6 +225,47 @@ resource "aws_s3_bucket_policy" "trail" {
   depends_on = [aws_s3_bucket_public_access_block.trail]
 }
 
+# ---------- CloudWatch Logs delivery (management account) ----------
+# Security Hub CloudTrail.5: the trail also streams to CloudWatch Logs, so
+# events are searchable in seconds (Logs Insights) and can drive metric
+# filters and alarms, instead of only landing as files in S3. Org trails
+# deliver every account's events to this one log group.
+
+resource "aws_cloudwatch_log_group" "trail" {
+  name              = "/aws/cloudtrail/${var.trail_name}"
+  retention_in_days = var.trail_log_retention_days
+}
+
+resource "aws_iam_role" "trail_cwlogs" {
+  name = "cloudtrail-to-cloudwatch-logs"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "cloudtrail.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+      Condition = {
+        StringEquals = { "aws:SourceArn" = local.trail_arn }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "trail_cwlogs" {
+  name = "write-trail-log-group"
+  role = aws_iam_role.trail_cwlogs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource = "${aws_cloudwatch_log_group.trail.arn}:log-stream:*"
+    }]
+  })
+}
+
 # ---------- Trail (management account) ----------
 
 resource "aws_cloudtrail" "org" {
@@ -235,11 +276,14 @@ resource "aws_cloudtrail" "org" {
   is_multi_region_trail         = true
   include_global_service_events = true
   enable_log_file_validation    = true
+  cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.trail.arn}:*"
+  cloud_watch_logs_role_arn     = aws_iam_role.trail_cwlogs.arn
 
   # CloudTrail checks bucket and key access at creation time.
   depends_on = [
     aws_s3_bucket_policy.trail,
     aws_s3_bucket_server_side_encryption_configuration.trail,
     aws_kms_alias.trail,
+    aws_iam_role_policy.trail_cwlogs,
   ]
 }

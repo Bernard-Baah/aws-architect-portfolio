@@ -21,3 +21,9 @@ variable "log_expire_days" {
   type        = number
   default     = 365
 }
+
+variable "trail_log_retention_days" {
+  description = "How long the CloudWatch Logs copy of trail events is kept (S3 keeps the long-term copy)"
+  type        = number
+  default     = 90
+}
