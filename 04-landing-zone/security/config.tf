@@ -144,6 +144,7 @@ resource "aws_s3_bucket_policy" "config" {
 
 module "config_management" {
   source = "../../modules/account-config"
+  count  = var.config_enabled ? 1 : 0
 
   providers = {
     aws.home      = aws
@@ -157,6 +158,7 @@ module "config_management" {
 
 module "config_log_archive" {
   source = "../../modules/account-config"
+  count  = var.config_enabled ? 1 : 0
 
   providers = {
     aws.home      = aws.log_archive
@@ -170,6 +172,7 @@ module "config_log_archive" {
 
 module "config_audit" {
   source = "../../modules/account-config"
+  count  = var.config_enabled ? 1 : 0
 
   providers = {
     aws.home      = aws.audit
@@ -183,6 +186,7 @@ module "config_audit" {
 
 module "config_dev" {
   source = "../../modules/account-config"
+  count  = var.config_enabled ? 1 : 0
 
   providers = {
     aws.home      = aws.dev
@@ -196,6 +200,7 @@ module "config_dev" {
 
 module "config_prod" {
   source = "../../modules/account-config"
+  count  = var.config_enabled ? 1 : 0
 
   providers = {
     aws.home      = aws.prod
@@ -205,4 +210,30 @@ module "config_prod" {
   delivery_bucket = aws_s3_bucket.config.id
 
   depends_on = [aws_s3_bucket_policy.config]
+}
+
+# Recorders went behind var.config_enabled (count); keep existing state.
+moved {
+  from = module.config_management
+  to   = module.config_management[0]
+}
+
+moved {
+  from = module.config_log_archive
+  to   = module.config_log_archive[0]
+}
+
+moved {
+  from = module.config_audit
+  to   = module.config_audit[0]
+}
+
+moved {
+  from = module.config_dev
+  to   = module.config_dev[0]
+}
+
+moved {
+  from = module.config_prod
+  to   = module.config_prod[0]
 }

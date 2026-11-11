@@ -66,15 +66,22 @@ resource "aws_securityhub_organization_configuration" "this" {
 resource "aws_securityhub_configuration_policy" "fsbp" {
   provider = aws.audit
 
+  # Switching security_hub_enabled to false doesn't delete anything: the same
+  # policy, still associated with the org root, becomes "Security Hub
+  # disabled", and central configuration turns it off in every account. No
+  # hub means no security checks and no bill. Flip back to true to re-enable.
   name        = "fsbp-all-accounts"
-  description = "Security Hub on with AWS Foundational Security Best Practices, all controls"
+  description = var.security_hub_enabled ? "Security Hub on with AWS Foundational Security Best Practices, all controls" : "Security Hub disabled org-wide (cost: checks billed per evaluation)"
 
   configuration_policy {
-    service_enabled       = true
-    enabled_standard_arns = [local.fsbp_arn]
+    service_enabled       = var.security_hub_enabled
+    enabled_standard_arns = var.security_hub_enabled ? [local.fsbp_arn] : null
 
-    security_controls_configuration {
-      disabled_control_identifiers = []
+    dynamic "security_controls_configuration" {
+      for_each = var.security_hub_enabled ? [1] : []
+      content {
+        disabled_control_identifiers = []
+      }
     }
   }
 
