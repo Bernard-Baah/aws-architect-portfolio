@@ -11,7 +11,7 @@ _Know when every workload is unhealthy before users do, and prove the environmen
 | 5a | `finops/` | Cost allocation tags, budgets (org total + dev/prod), per-account Cost Anomaly Detection, all from the management account |
 | 5b | `workload/` | Project 02's pipeline redeployed into **dev** through the landing zone, plus dashboard, SLOs, alarms with runbooks, X-Ray, Logs Insights queries |
 | 5c | `cross-account/` | Cross-account observability: dev's metrics, logs and traces visible from Audit |
-| 5d | | Cost case study: one measured before → after change with its trade-off |
+| 5d | `cost/` | Cost case study: Project 01 priced live from the AWS Price List API, change by change, checked against the real bill |
 
 ## Deploy 5a: FinOps guardrails
 ```bash
@@ -64,6 +64,16 @@ terraform apply
 | `oam list-attached-links` from Audit | ✅ dev linked with metrics, log groups and X-Ray traces |
 | `list-metrics --include-linked-accounts` from Audit | ✅ 20 Step Functions metrics owned by dev (ExecutionsSucceeded, ExecutionTime, ExecutionsFailed…) next to Audit's own |
 | Note | Dev's metrics appeared a few minutes after linking, once new data points were published |
+
+## 5d: cost case study (Project 01)
+Running Project 01 for days just to measure it would burn the lab budget, so the case study is a **model priced live from the AWS Price List API**, then **checked against the real bill** for the hours Projects 01 and 03 actually ran:
+
+```bash
+AWS_PROFILE=tf python3 05-observability-finops/cost/price_project01.py
+AWS_PROFILE=tf python3 05-observability-finops/cost/check_against_bill.py 2026-11-01 2026-11-12
+```
+
+_Results table goes here after the first run._
 
 ## Game day: a bad IAM change (2026-11-11)
 Removed the `read-uploads` permission from the analyze function's role (simulating a bad manual change), then uploaded a **valid** file.
