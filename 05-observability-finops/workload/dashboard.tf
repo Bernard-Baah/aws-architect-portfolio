@@ -35,8 +35,8 @@ resource "aws_cloudwatch_dashboard" "pipeline" {
       {
         type = "alarm", x = 0, y = 2, width = 24, height = 3
         properties = {
-          title  = "Alarm status (only the composite pages)"
-          alarms = concat([aws_cloudwatch_composite_alarm.unhealthy.arn], [for a in local.child_alarms : "arn:aws:cloudwatch:${local.region}:${data.terraform_remote_state.org.outputs.account_ids["dev"]}:alarm:${a}"])
+          title  = "Alarm status (only the composite pages; DLQ is information)"
+          alarms = concat([aws_cloudwatch_composite_alarm.unhealthy.arn], [for a in concat(local.child_alarms, local.info_alarms) : "arn:aws:cloudwatch:${local.region}:${data.terraform_remote_state.org.outputs.account_ids["dev"]}:alarm:${a}"])
         }
       },
       {
@@ -111,6 +111,7 @@ resource "aws_cloudwatch_dashboard" "pipeline" {
           metrics = concat(
             [for k, f in local.fn : ["AWS/Lambda", "Errors", "FunctionName", f, { stat = "Sum", label = "${k} errors" }]],
             [for k, f in local.fn : ["AWS/Lambda", "Throttles", "FunctionName", f, { stat = "Sum", label = "${k} throttles" }]],
+            [["InventoryPipeline", "ValidateSystemErrors", { stat = "Sum", label = "validate system errors" }]],
             [["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", local.dlq_name, { stat = "Maximum", label = "DLQ depth", yAxis = "right" }]],
           )
         }

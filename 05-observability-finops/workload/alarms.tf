@@ -4,12 +4,12 @@
 #   API availability  : share of /documents requests without a 5xx
 #   API latency       : p95 response time
 #   Pipeline freshness: p95 time from upload to result stored
-#   System errors     : timeouts/aborts, analyze or API Lambda errors, DLQ depth
+#   System errors     : timeouts/aborts, Lambda errors that aren't bad input
 #
 # Bad input is NOT an incident. A rejected file (wrong format, missing
 # columns) ends its execution as FAILED by design and is recorded in
-# DynamoDB, so ExecutionsFailed and the validate function's errors are
-# deliberately left out of paging.
+# DynamoDB (and the DLQ), so ExecutionsFailed, DLQ depth and validate's
+# ValidationError are deliberately left out of paging.
 #
 # The child alarms have no actions. One composite alarm ORs them together
 # and is the only thing that notifies, so one incident sends one email.
@@ -146,9 +146,25 @@ resource "aws_cloudwatch_metric_alarm" "pipeline_stuck" {
   }
 }
 
+# validate raises ValidationError for bad files (expected) and anything else
+# for real faults (S3 access, bugs). The Lambda Errors metric can't tell them
+# apart, so a log metric filter counts only the non-validation errors.
+resource "aws_cloudwatch_log_metric_filter" "validate_system_errors" {
+  name           = "${var.name}-validate-system-errors"
+  log_group_name = "/aws/lambda/${local.fn["validate"]}"
+  pattern        = "\"[ERROR]\" -ValidationError"
+
+  metric_transformation {
+    name          = "ValidateSystemErrors"
+    namespace     = "InventoryPipeline"
+    value         = "1"
+    default_value = "0"
+  }
+}
+
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   alarm_name          = "${var.name}-system-lambda-errors"
-  alarm_description   = "Errors in the analyze or API functions (validate is excluded: rejecting bad files is its job). Runbook: ${local.runbook}#system-lambda-errors"
+  alarm_description   = "System errors in analyze, API, or validate (validate's ValidationError for bad files is excluded). Runbook: ${local.runbook}#system-lambda-errors"
   comparison_operator = "GreaterThanThreshold"
   threshold           = 0
   evaluation_periods  = 1
@@ -156,8 +172,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
   metric_query {
     id          = "errs"
-    expression  = "analyze + api"
-    label       = "analyze + api errors"
+    expression  = "analyze + api + validate"
+    label       = "system errors"
     return_data = true
   }
 
@@ -182,11 +198,25 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
       dimensions  = { FunctionName = local.fn["api"] }
     }
   }
+
+  metric_query {
+    id = "validate"
+    metric {
+      namespace   = "InventoryPipeline"
+      metric_name = aws_cloudwatch_log_metric_filter.validate_system_errors.metric_transformation[0].name
+      period      = 300
+      stat        = "Sum"
+    }
+  }
 }
 
 # ---------- The one alarm that pages ----------
-# Project 02 already alarms on DLQ depth (it has its own email action);
-# the composite reuses it so a DLQ message also counts as "unhealthy".
+# Project 02's DLQ alarm is deliberately NOT part of the composite: the
+# workflow sends every failure to the DLQ, rejected files included, so DLQ
+# depth alone can't say "system broken". (First version included it and
+# paged on the sample run's not-a-csv.txt.) System failures that end in the
+# DLQ are caught by the error and timeout alarms above; the DLQ stays on the
+# dashboard as information, with its runbook section for triage.
 
 locals {
   child_alarms = [
@@ -195,8 +225,9 @@ locals {
     aws_cloudwatch_metric_alarm.pipeline_latency.alarm_name,
     aws_cloudwatch_metric_alarm.pipeline_stuck.alarm_name,
     aws_cloudwatch_metric_alarm.lambda_errors.alarm_name,
-    "${var.name}-dlq-not-empty",
   ]
+
+  info_alarms = ["${var.name}-dlq-not-empty"]
 }
 
 resource "aws_cloudwatch_composite_alarm" "unhealthy" {

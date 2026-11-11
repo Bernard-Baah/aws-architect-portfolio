@@ -8,7 +8,7 @@
 2. Check whether it's one file or many: the **Executions** widget separates succeeded, failed (which includes rejected files), timed out and aborted.
 3. Note the start time. Every section ends with "recovered when": write the end time and cause in the incident note.
 
-> **Not an incident:** a user uploading a bad file. The pipeline rejects it on purpose, records `FAILED` with a `ValidationError` in DynamoDB, and does not page. If the only red thing is `dlq-not-empty` and the DLQ messages are all `ValidationError`, tell the uploader and purge or keep the messages as evidence.
+> **Not an incident:** a user uploading a bad file. The pipeline rejects it on purpose, records `FAILED` with a `ValidationError` in DynamoDB, sends it to the DLQ, and does **not** page. `dlq-not-empty` is shown on the dashboard as information only, because the DLQ holds rejected files as well as real failures.
 
 ---
 
@@ -48,15 +48,15 @@ An execution timed out or was aborted. Bad input never causes this, so something
 **Mitigate:** re-run the affected uploads with `scripts/redrive-dlq.sh` once the cause is fixed.
 
 ## system-lambda-errors
-The `analyze` or `api` function raised an error. (`validate` is excluded because rejecting files is its job.)
+The `analyze` or `api` function raised an error, or `validate` raised anything other than `ValidationError` (counted by the log metric filter `inventory-pipeline-validate-system-errors`).
 
 1. Logs Insights → **`inventory-pipeline/lambda-errors`**.
 2. X-Ray trace for the failing request.
 
 **Mitigate:** fix forward or revert; failed uploads land in the DLQ, so nothing is lost. Redrive afterwards: `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh --dry-run`, then without `--dry-run`.
 
-## dlq-not-empty
-At least one upload ended in the dead-letter queue.
+## dlq-not-empty (information, does not page)
+At least one upload ended in the dead-letter queue: a rejected file or a system failure.
 
 1. Preview first (changes nothing): `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh --dry-run`
 2. Each message carries `error_name`: `ValidationError` = bad input (see the note at the top); anything else = system failure, so fix it, then redrive for real: `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh` (replays system failures, removes invalid-input messages).
