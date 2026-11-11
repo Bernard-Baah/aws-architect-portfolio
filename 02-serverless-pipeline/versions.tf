@@ -24,6 +24,16 @@ terraform {
 provider "aws" {
   region = var.region
 
+  # Optional: deploy into another account (Project 05 runs this stack in the
+  # landing zone's dev account). Unset = whatever account your credentials are in.
+  dynamic "assume_role" {
+    for_each = var.assume_role_arn == null ? [] : [var.assume_role_arn]
+    content {
+      role_arn     = assume_role.value
+      session_name = "terraform-serverless-pipeline"
+    }
+  }
+
   default_tags {
     tags = {
       Project   = "serverless-pipeline"
