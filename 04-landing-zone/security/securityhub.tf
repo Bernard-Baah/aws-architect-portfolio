@@ -71,7 +71,7 @@ resource "aws_securityhub_configuration_policy" "fsbp" {
   # disabled", and central configuration turns it off in every account. No
   # hub means no security checks and no bill. Flip back to true to re-enable.
   name        = "fsbp-all-accounts"
-  description = var.security_hub_enabled ? "Security Hub on with AWS Foundational Security Best Practices, all controls" : "Security Hub disabled org-wide (cost: checks billed per evaluation)"
+  description = var.security_hub_enabled ? "Security Hub on with AWS Foundational Security Best Practices, all controls" : "Security Hub disabled org-wide to save cost, re-enable with security_hub_enabled"
 
   configuration_policy {
     service_enabled       = var.security_hub_enabled
