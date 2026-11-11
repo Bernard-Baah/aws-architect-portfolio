@@ -1,6 +1,6 @@
 # 05 · Observability & FinOps
 
-> **Status:** 🚧 In progress (5a and 5b deployed + game day; 5c/5d next)
+> **Status:** 🚧 In progress (5a–5c deployed and tested; 5d cost case study next)
 
 ## Problem
 _Know when every workload is unhealthy before users do, and prove the environment runs at the lowest sensible cost._
@@ -57,6 +57,13 @@ cd 05-observability-finops/cross-account
 terraform init -backend-config="bucket=bernard-tfstate-40b007"
 terraform apply
 ```
+
+| Cross-account test | Result |
+|--------------------|--------|
+| Apply | 3 added, 0 destroyed; dev appears in Audit as "Bernard-aws-development" |
+| `oam list-attached-links` from Audit | ✅ dev linked with metrics, log groups and X-Ray traces |
+| `list-metrics --include-linked-accounts` from Audit | ✅ 20 Step Functions metrics owned by dev (ExecutionsSucceeded, ExecutionTime, ExecutionsFailed…) next to Audit's own |
+| Note | Dev's metrics appeared a few minutes after linking, once new data points were published |
 
 ## Game day: a bad IAM change (2026-11-11)
 Removed the `read-uploads` permission from the analyze function's role (simulating a bad manual change), then uploaded a **valid** file.
