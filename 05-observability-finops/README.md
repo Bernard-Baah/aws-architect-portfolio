@@ -33,9 +33,10 @@ Project 02's pipeline runs in the landing zone's **dev** account, from the same 
 | API availability (non-5xx share) | 99.9% over 30 days | 5xx rate > 1% in 2 of 3 windows |
 | API latency | p95 < 1,000 ms | p95 above target for 15 min |
 | Pipeline freshness (upload → result stored) | p95 < 60 s | p95 above target for 15 min |
-| System errors | none | analyze/API Lambda errors, timeouts/aborts, DLQ not empty |
+| System errors | none | Lambda errors that aren't bad input (log metric filter excludes `ValidationError`), timeouts/aborts |
 
-- **Bad input is not an incident.** A rejected file ends its execution as `FAILED` by design, so `ExecutionsFailed` and the validate function's errors are not paged on; the dashboard still shows them.
+- **Bad input is not an incident.** A rejected file ends its execution as `FAILED` and goes to the DLQ by design, so `ExecutionsFailed`, DLQ depth and `ValidationError` are not paged on; the dashboard still shows them.
+- **Found on day one:** the first version also paged on the DLQ alarm, and the sample run's `not-a-csv.txt` set the composite to ALARM. A log metric filter now counts only validate's *non*-validation errors, and the DLQ became information.
 - **One page per incident.** Child alarms have no actions; a composite alarm ORs them and is the only thing that emails. Every alarm description links to its section of [`docs/runbooks/pipeline-unhealthy.md`](../docs/runbooks/pipeline-unhealthy.md).
 - **Dashboard** `inventory-pipeline-slo`: SLO numbers, latency percentiles against the targets, executions split into succeeded / rejected / stuck, errors and throttles, a live Lambda-errors log table.
 - **Saved Logs Insights queries**: lambda-errors, slowest-invocations, cold-starts, api-non-2xx, failed-executions. X-Ray tracing was already on in Project 02.
