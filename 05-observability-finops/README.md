@@ -1,6 +1,6 @@
 # 05 · Observability & FinOps
 
-> **Status:** 🚧 In progress (5a–5c deployed and tested; 5d cost case study next)
+> **Status:** ✅ Done (FinOps guardrails, SLOs + game day, cross-account observability, cost case study)
 
 ## Problem
 _Know when every workload is unhealthy before users do, and prove the environment runs at the lowest sensible cost._
@@ -73,7 +73,31 @@ AWS_PROFILE=tf python3 05-observability-finops/cost/price_project01.py
 AWS_PROFILE=tf python3 05-observability-finops/cost/check_against_bill.py 2026-11-01 2026-11-12
 ```
 
-_Results table goes here after the first run._
+**Walk from the production pattern to dev-sized** (fixed costs, us-east-1, prices pulled 2026-11-11):
+
+| Change | $/month | Saved | Trade-off |
+|---|---:|---:|---|
+| **Production pattern left on in dev** (2 NATs, t3.micro ×2, RDS Multi-AZ, 24/7) | **$134.17** | | |
+| Graviton (t3 → t4g) | $131.25 | $2.92 | Arm64 build; same performance class |
+| One shared NAT instead of one per AZ | $94.75 | **$36.50** | An AZ outage cuts egress for the other AZ: fine for dev, not prod |
+| RDS Single-AZ in dev | $80.77 | $13.98 | No automatic failover (Project 01 measured 40 s with Multi-AZ); keep Multi-AZ in prod |
+| Office-hours schedule (EC2 + RDS, 12 h × weekdays) | $65.38 | $15.39 | App down nights/weekends; a stopped RDS restarts itself after 7 days |
+| **Dev-sized total** | **$65.38** | **$68.79 (51%)** | |
+
+**What the model shows:** the NAT gateway is the single biggest lever, and two always-on costs remain no matter what: the NAT ($36/month) and the ALB ($16/month). Neither can be scheduled, so for a dev account that's idle most of the week, the real fix is `terraform destroy` between sessions (what this portfolio did all along) or replacing the NAT with VPC endpoints when the app only needs AWS APIs.
+
+**Checked against the real bill** (Cost Explorer, 2026-11-01 → 11-12, the hours Projects 01 and 03 actually ran):
+
+| Usage type | Hours | Billed | Effective $/hour | Model price |
+|---|---:|---:|---:|---:|
+| `NatGateway-Hours` (+ `USW2-`) | 13.0 | $0.58 | $0.0450 | $0.0450 ✅ |
+| `LoadBalancerUsage` (+ `USW2-`) | 6.0 | $0.13 | $0.0225 | $0.0225 ✅ |
+| `BoxUsage:t4g.micro` (+ `USW2-`) | 4.8 | $0.04 | $0.0084 | $0.0084 ✅ |
+| `Multi-AZUsage:db.t4g.micro` | 2.5 | $0.08 | $0.0320 | $0.0320 ✅ |
+| `InstanceUsage:db.t4g.micro` (+ `USW2-`) | 2.4 | $0.04 | $0.0160 | $0.0160 ✅ |
+| `PublicIPv4:InUseAddress` (USE1 + USW2) | 97.6 | $0.49 | $0.0050 | $0.0050 ✅ |
+
+Every billed rate equals the list price the model uses. The low hours are the point: Projects 01–03 were destroyed after every session, so their whole lifetime cost about **$1.36** in hourly charges.
 
 ## Game day: a bad IAM change (2026-11-11)
 Removed the `read-uploads` permission from the analyze function's role (simulating a bad manual change), then uploaded a **valid** file.
@@ -104,7 +128,7 @@ Removed the `read-uploads` permission from the analyze function's role (simulati
 ## FinOps checklist
 - [x] Cost allocation tags activated
 - [ ] One-week cost baseline per project
-- [ ] Compute Optimizer / Trusted Advisor / rightsizing review
+- [x] Rightsizing review (cost model: Graviton, NAT, Multi-AZ, schedule)
 - [ ] Changes applied in Terraform (Graviton, VPC gateway endpoints, Spot, schedules, lifecycle rules)
 - [x] Budgets (org + workloads), Cost Anomaly Detection per account
 - [ ] Required-tag policy
