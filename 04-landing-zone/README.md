@@ -128,6 +128,18 @@ People sign in once at the access portal and choose an account and role. No IAM 
 
 Access goes to a **group**, never directly to a user, so onboarding a teammate is one group membership. Each permission set becomes an `AWSReservedSSO_*` role in its accounts, and those roles are **not** exempt from the guardrails SCP: even LZ-Admin can't stop CloudTrail or delete GuardDuty.
 
+## Cost switches (after the measurements)
+Security Hub CSPM is billed per security check and AWS Config per configuration item and per rule evaluation, and Security Hub's checks run as Config rules. Measured on day 4 (233 checks for one account-region), the pair would cost roughly **$30/month** across 5 accounts × 2 regions after the trial: more than the $25 org budget. With the before/after scores recorded, both are switched off:
+
+```bash
+cd 04-landing-zone/security
+terraform apply
+```
+
+- `security_hub_enabled = false` (default): the same central policy, still on the org root, becomes **Security Hub disabled**, so AWS turns it off in every account. Admin delegation and the aggregator stay, at no cost.
+- `config_enabled = false` (default): the recorders, delivery channels and service-linked roles are removed; the central bucket keeps the snapshots.
+- **Kept:** org CloudTrail (logs locked, KMS), GuardDuty (measured at cents per account), SCPs, Identity Center, hardening, budgets. A new score is one apply away with `-var security_hub_enabled=true -var config_enabled=true`.
+
 ## Cost
 Layer 1 is free: Organizations, OUs, SCPs and idle accounts cost nothing. AWS Config (daily recording) costs cents per account-region for quiet accounts. Security Hub CSPM and GuardDuty each have a 30-day free trial per account and region, then is usage-based (small for idle lab accounts). Layer 2a: the first copy of management events is free; expect about $1/month for the KMS key plus cents of S3. Later layers add CloudTrail data storage, GuardDuty and Security Hub (both have 30-day free trials per account), noted in each layer.
 
