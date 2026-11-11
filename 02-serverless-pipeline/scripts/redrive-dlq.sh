@@ -36,8 +36,12 @@ while :; do
 
   i=0
   while [ "$i" -lt "$count" ]; do
-    python3 -c 'import json,sys; m=json.load(open(sys.argv[1]))["Messages"][int(sys.argv[2])]; open(sys.argv[3],"w").write(m["Body"]); print(m["ReceiptHandle"])' \
-      "$TMP/batch.json" "$i" "$TMP/body.json" > "$TMP/receipt"
+    python3 -c 'import json,sys; m=json.load(open(sys.argv[1]))["Messages"][int(sys.argv[2])]; open(sys.argv[3],"w").write(m["Body"]); print(m["ReceiptHandle"]); open(sys.argv[4],"w").write(m["MessageId"])' \
+      "$TMP/batch.json" "$i" "$TMP/body.json" "$TMP/msgid" > "$TMP/receipt"
+    # With visibility 0 (dry run) SQS can return the same message several
+    # times in one batch; count each message once.
+    if grep -qxF "$(cat "$TMP/msgid")" "$TMP/seen" 2>/dev/null; then i=$((i + 1)); continue; fi
+    cat "$TMP/msgid" >> "$TMP/seen"; echo >> "$TMP/seen"
     python3 scripts/dlq_message.py < "$TMP/body.json" > "$TMP/decision.json"
     action=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["action"])' "$TMP/decision.json")
     summary=$(python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print(d["key"], "|", d["reason"])' "$TMP/decision.json")
