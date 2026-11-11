@@ -10,7 +10,7 @@ _Know when every workload is unhealthy before users do, and prove the environmen
 |---|---|---|
 | 5a | `finops/` | Cost allocation tags, budgets (org total + dev/prod), per-account Cost Anomaly Detection, all from the management account |
 | 5b | `workload/` | Project 02's pipeline redeployed into **dev** through the landing zone, plus dashboard, SLOs, alarms with runbooks, X-Ray, Logs Insights queries |
-| 5c | | Cross-account observability: dev's metrics, logs and traces visible from Audit |
+| 5c | `cross-account/` | Cross-account observability: dev's metrics, logs and traces visible from Audit |
 | 5d | | Cost case study: one measured before → after change with its trade-off |
 
 ## Deploy 5a: FinOps guardrails
@@ -49,6 +49,15 @@ terraform init -backend-config="bucket=bernard-tfstate-40b007"
 terraform apply
 ```
 
+## Deploy 5c: cross-account observability
+CloudWatch Observability Access Manager: **Audit owns a sink**, **dev links to it**. Audit's CloudWatch console then shows dev's metrics, log groups and X-Ray traces next to its own, read-only, with no data copied. The sink policy accepts links only from this organization (`aws:PrincipalOrgID`) and only for those three telemetry types.
+
+```bash
+cd 05-observability-finops/cross-account
+terraform init -backend-config="bucket=bernard-tfstate-40b007"
+terraform apply
+```
+
 ## Game day: a bad IAM change (2026-11-11)
 Removed the `read-uploads` permission from the analyze function's role (simulating a bad manual change), then uploaded a **valid** file.
 
@@ -73,7 +82,7 @@ Removed the `read-uploads` permission from the analyze function's role (simulati
 - [x] SLOs defined (API 99.9% non-5xx, API p95 < 1 s, upload→result p95 < 60 s)
 - [x] Composite alarm → SNS, every alarm linked to a runbook section in `docs/runbooks/`
 - [x] X-Ray tracing + Logs Insights saved queries
-- [ ] Cross-account observability into the monitoring/Audit account
+- [x] Cross-account observability into the Audit account (OAM sink + link)
 
 ## FinOps checklist
 - [x] Cost allocation tags activated
