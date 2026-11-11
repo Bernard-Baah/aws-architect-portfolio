@@ -1,6 +1,6 @@
 # 05 · Observability & FinOps
 
-> **Status:** 🚧 In progress (5a deployed; 5b observability)
+> **Status:** 🚧 In progress (5a and 5b deployed + game day; 5c/5d next)
 
 ## Problem
 _Know when every workload is unhealthy before users do, and prove the environment runs at the lowest sensible cost._
@@ -48,6 +48,25 @@ nano terraform.tfvars
 terraform init -backend-config="bucket=bernard-tfstate-40b007"
 terraform apply
 ```
+
+## Game day: a bad IAM change (2026-11-11)
+Removed the `read-uploads` permission from the analyze function's role (simulating a bad manual change), then uploaded a **valid** file.
+
+| Time (ET) | Event |
+|---|---|
+| 12:57:58 | Fault injected; valid file uploaded |
+| 12:59:55 | `system-lambda-errors` → ALARM; composite `inventory-pipeline-unhealthy` emails (**~2 min to detect**) |
+| ~13:10 | Runbook: saved Logs Insights query `lambda-errors` shows `AccessDenied` on `s3:GetObject` |
+| **13:14:55** | Composite emails **OK**, while the permission was still missing |
+| ~13:20 | `terraform plan` detects the drift (1 to add); `apply` restores the policy |
+| ~13:23 | `redrive-dlq.sh` replays the failed upload (classified `retryable (AccessDenied)`) |
+| 13:29 | File confirmed `COMPLETE` (10 rows, 2 racks): **no data lost** |
+
+**What worked:** one page for one incident, sent in ~2 minutes; the email named the failing child alarm and linked the runbook; bad-input alarms stayed quiet; the DLQ held the failed upload until the fix; Terraform found and repaired the drift; replay finished the work.
+
+**What the game day taught:**
+- **"Alarm OK" ≠ recovered.** Error alarms count errors per 5-minute window. With no new traffic, the window went quiet and the composite cleared ~8 minutes **before** the fix. On a low-traffic system, recovery is proven by a successful run (replay + `COMPLETE` in DynamoDB), not by the alarm. The runbook now says so. A synthetic canary (a scheduled known-good upload) would close this gap.
+- **The DLQ dry run over-reported.** With visibility 0, SQS returned one message 10 times in a batch and could miss others; fixed by de-duplicating on `MessageId` and sampling until nothing new appears.
 
 ## Observability checklist
 - [x] CloudWatch dashboard for the pipeline (API, Step Functions, Lambda, SQS DLQ)

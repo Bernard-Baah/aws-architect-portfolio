@@ -7,6 +7,7 @@
 1. Open the dashboard. The **Alarm status** row shows which child alarm is red; jump to its section below.
 2. Check whether it's one file or many: the **Executions** widget separates succeeded, failed (which includes rejected files), timed out and aborted.
 3. Note the start time. Every section ends with "recovered when": write the end time and cause in the incident note.
+4. **An OK email is not proof of recovery.** Error alarms clear when a 5-minute window has no *new* errors, which on a quiet pipeline happens even if nothing was fixed (game day 2026-11-11: OK arrived 8 minutes before the fix). Confirm with a successful run: replay or re-upload, then check the item is `COMPLETE`.
 
 > **Not an incident:** a user uploading a bad file. The pipeline rejects it on purpose, records `FAILED` with a `ValidationError` in DynamoDB, sends it to the DLQ, and does **not** page. `dlq-not-empty` is shown on the dashboard as information only, because the DLQ holds rejected files as well as real failures.
 
