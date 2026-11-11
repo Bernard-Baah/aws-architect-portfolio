@@ -53,12 +53,12 @@ The `analyze` or `api` function raised an error. (`validate` is excluded because
 1. Logs Insights → **`inventory-pipeline/lambda-errors`**.
 2. X-Ray trace for the failing request.
 
-**Mitigate:** fix forward or revert; failed uploads land in the DLQ, so nothing is lost. Redrive afterwards: `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh`.
+**Mitigate:** fix forward or revert; failed uploads land in the DLQ, so nothing is lost. Redrive afterwards: `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh --dry-run`, then without `--dry-run`.
 
 ## dlq-not-empty
 At least one upload ended in the dead-letter queue.
 
-1. Dry run first (messages stay in the queue): `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh`
-2. Each message carries `error_name`: `ValidationError` = bad input (see the note at the top); anything else = system failure, so fix it, then redrive with `--apply`.
+1. Preview first (changes nothing): `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh --dry-run`
+2. Each message carries `error_name`: `ValidationError` = bad input (see the note at the top); anything else = system failure, so fix it, then redrive for real: `TARGET_PROFILE=lz-dev ./scripts/redrive-dlq.sh` (replays system failures, removes invalid-input messages).
 
 **Recovered when:** the DLQ is empty and the alarm returns to OK.
