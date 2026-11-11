@@ -2,6 +2,8 @@
 
 > **Status:** ✅ Done (FinOps guardrails, SLOs + game day, cross-account observability, cost case study)
 
+![Project 05 architecture](../docs/diagrams/05-observability-finops.png)
+
 ## Problem
 _Know when every workload is unhealthy before users do, and prove the environment runs at the lowest sensible cost._
 
