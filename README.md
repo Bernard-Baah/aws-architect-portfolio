@@ -34,6 +34,10 @@ deployments, fiber) and AWS Certified Cloud Practitioner. · [bernardbaah.com](h
 
 [![Project 04 architecture](docs/diagrams/04-landing-zone.svg)](04-landing-zone/)
 
+## Project 05 at a glance
+
+[![Project 05 architecture](docs/diagrams/05-observability-finops.svg)](05-observability-finops/)
+
 ## Repository layout
 
 ```

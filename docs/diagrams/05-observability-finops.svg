@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1060" viewBox="0 0 1200 1060" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<defs>
+<marker id="ah-2e5fa8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e5fa8"/></marker>
+<marker id="ah-16191f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16191f"/></marker>
+<marker id="ah-dd344c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dd344c"/></marker>
+<marker id="ah-ed7100" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ed7100"/></marker>
+<marker id="ah-e7157b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e7157b"/></marker>
+<marker id="ah-5f6b7a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5f6b7a"/></marker>
+<marker id="ah-1d8102" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1d8102"/></marker>
+</defs>
+<rect width="1200" height="1060" fill="#ffffff"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#16191f" text-anchor="start">Project 05 · Observability &amp; FinOps</text>
+<text x="1160" y="44" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="end">github.com/Bernard-Baah/aws-architect-portfolio</text>
+<text x="40" y="68" font-size="13.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Project 02 runs in the landing zone's dev account, watched by SLOs that page once, seen from Audit, and costed from live prices.</text>
+<rect x="40" y="90" width="780" height="470" rx="10" fill="none" stroke="#ed7100" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="56" y="112" font-size="14" font-weight="700" fill="#16191f" text-anchor="start">dev account (Workloads OU) · same Terraform as Project 02, own workspace</text>
+<rect x="56" y="130" width="120" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="56" y="130" width="5" height="56" rx="2" fill="#ed7100"/>
+<text x="70" y="150" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">S3 uploads</text>
+<text x="70" y="166" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">incoming/*.csv</text>
+<rect x="196" y="130" width="120" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="196" y="130" width="5" height="56" rx="2" fill="#ed7100"/>
+<text x="210" y="150" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">EventBridge</text>
+<text x="210" y="166" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Object Created</text>
+<rect x="336" y="130" width="170" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="336" y="130" width="5" height="56" rx="2" fill="#ed7100"/>
+<text x="350" y="150" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Step Functions</text>
+<text x="350" y="166" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">validate → analyze → store</text>
+<rect x="526" y="130" width="130" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="526" y="130" width="5" height="56" rx="2" fill="#ed7100"/>
+<text x="540" y="150" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">DynamoDB</text>
+<text x="540" y="166" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">results + status</text>
+<rect x="676" y="130" width="128" height="56" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="676" y="130" width="5" height="56" rx="2" fill="#ed7100"/>
+<text x="690" y="150" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">SQS DLQ</text>
+<text x="690" y="166" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">every failure</text>
+<text x="690" y="182" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">lands here</text>
+<polyline points="176,158 194,158" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="316,158 334,158" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="506,158 524,158" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<polyline points="656,158 674,158" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<rect x="336" y="202" width="170" height="44" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="336" y="202" width="5" height="44" rx="2" fill="#ed7100"/>
+<text x="350" y="222" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Lambda ×3 (arm64)</text>
+<text x="350" y="238" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">validate · analyze · api · X-Ray</text>
+<rect x="526" y="202" width="130" height="44" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="526" y="202" width="5" height="44" rx="2" fill="#ed7100"/>
+<text x="540" y="222" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">API Gateway</text>
+<text x="540" y="238" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">SigV4, /documents</text>
+<rect x="56" y="270" width="748" height="280" rx="8" fill="#fdf5f9" stroke="#e7157b" stroke-width="1.5"/>
+<text x="72" y="292" font-size="13" font-weight="700" fill="#e7157b" text-anchor="start">Observability (05-observability-finops/workload)</text>
+<rect x="72" y="306" width="230" height="116" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="72" y="306" width="5" height="116" rx="2" fill="#e7157b"/>
+<text x="86" y="326" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">SLOs → child alarms</text>
+<text x="86" y="342" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">API ≥ 99.9% non-5xx</text>
+<text x="86" y="358" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">API p95 &lt; 1 s</text>
+<text x="86" y="374" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">upload → result p95 &lt; 60 s</text>
+<text x="86" y="390" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">system Lambda errors · timeouts</text>
+<text x="86" y="406" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">(no actions on children)</text>
+<rect x="318" y="306" width="230" height="116" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="318" y="306" width="5" height="116" rx="2" fill="#dd344c"/>
+<text x="332" y="326" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Composite alarm</text>
+<text x="332" y="342" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">inventory-pipeline-unhealthy</text>
+<text x="332" y="358" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">= OR of the 5 children</text>
+<text x="332" y="374" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">the only thing that pages</text>
+<text x="332" y="390" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">one incident → one email</text>
+<text x="332" y="406" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">links runbook section</text>
+<rect x="564" y="306" width="224" height="116" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="564" y="306" width="5" height="116" rx="2" fill="#dd344c"/>
+<text x="578" y="326" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">SNS → email</text>
+<text x="578" y="342" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">ALARM and OK</text>
+<text x="578" y="358" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">runbook in docs/runbooks/</text>
+<text x="578" y="374" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">pipeline-unhealthy.md</text>
+<polyline points="302,364 316,364" fill="none" stroke="#e7157b" stroke-width="1.8" marker-end="url(#ah-e7157b)" stroke-linejoin="round"/>
+<polyline points="548,364 562,364" fill="none" stroke="#dd344c" stroke-width="1.8" marker-end="url(#ah-dd344c)" stroke-linejoin="round"/>
+<rect x="72" y="436" width="230" height="98" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="72" y="436" width="5" height="98" rx="2" fill="#b26200"/>
+<text x="86" y="456" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Bad input ≠ incident</text>
+<text x="86" y="472" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">rejected files → FAILED + DLQ</text>
+<text x="86" y="488" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">metric filter counts only</text>
+<text x="86" y="504" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">validate errors that are NOT</text>
+<text x="86" y="520" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">ValidationError</text>
+<rect x="318" y="436" width="230" height="98" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="318" y="436" width="5" height="98" rx="2" fill="#e7157b"/>
+<text x="332" y="456" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Dashboard</text>
+<text x="332" y="472" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">inventory-pipeline-slo</text>
+<text x="332" y="488" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">SLO numbers, p50/p95/p99</text>
+<text x="332" y="504" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">succeeded / rejected / stuck</text>
+<text x="332" y="520" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">DLQ depth = information</text>
+<rect x="564" y="436" width="224" height="98" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="564" y="436" width="5" height="98" rx="2" fill="#2e5fa8"/>
+<text x="578" y="456" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Logs Insights (saved)</text>
+<text x="578" y="472" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">lambda-errors · slowest</text>
+<text x="578" y="488" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">cold-starts · api-non-2xx</text>
+<text x="578" y="504" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">failed-executions</text>
+<rect x="850" y="90" width="310" height="210" rx="10" fill="none" stroke="#dd344c" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="866" y="112" font-size="14" font-weight="700" fill="#16191f" text-anchor="start">Audit account (monitoring)</text>
+<rect x="866" y="126" width="278" height="70" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="866" y="126" width="5" height="70" rx="2" fill="#2e5fa8"/>
+<text x="880" y="146" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">CloudWatch OAM sink</text>
+<text x="880" y="162" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">accepts links from this org only</text>
+<text x="880" y="178" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">metrics · log groups · X-Ray traces</text>
+<rect x="866" y="210" width="278" height="74" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="866" y="210" width="5" height="74" rx="2" fill="#dd344c"/>
+<text x="880" y="230" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Read-only investigation</text>
+<text x="880" y="246" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">dev's 20 Step Functions metrics</text>
+<text x="880" y="262" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">listed from Audit, next to its own;</text>
+<text x="880" y="278" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">nobody signs into dev</text>
+<polyline points="750,240 848,240" fill="none" stroke="#2e5fa8" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="812" y="262" font-size="11" font-weight="600" fill="#2e5fa8" text-anchor="end" stroke="#ffffff" stroke-width="4" paint-order="stroke" stroke-linejoin="round">OAM link →</text>
+<rect x="850" y="320" width="310" height="240" rx="10" fill="none" stroke="#1d8102" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text x="866" y="342" font-size="14" font-weight="700" fill="#16191f" text-anchor="start">Management account (billing)</text>
+<rect x="866" y="356" width="278" height="58" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="866" y="356" width="5" height="58" rx="2" fill="#1d8102"/>
+<text x="880" y="376" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Cost allocation tags</text>
+<text x="880" y="392" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">Project · Owner · ManagedBy</text>
+<text x="880" y="408" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">active org-wide</text>
+<rect x="866" y="424" width="278" height="58" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="866" y="424" width="5" height="58" rx="2" fill="#1d8102"/>
+<text x="880" y="444" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Budgets</text>
+<text x="880" y="460" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">org $25/mo: forecast 50/80/100%</text>
+<text x="880" y="476" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">dev + prod $10/mo</text>
+<rect x="866" y="492" width="278" height="54" rx="6" fill="#ffffff" stroke="#c6ccd5" stroke-width="1.2"/>
+<rect x="866" y="492" width="5" height="54" rx="2" fill="#1d8102"/>
+<text x="880" y="512" font-size="13" font-weight="600" fill="#16191f" text-anchor="start">Cost Anomaly Detection</text>
+<text x="880" y="528" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">all 5 accounts · daily email ≥ $5</text>
+<rect x="40" y="590" width="540" height="400" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="56" y="614" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Game day: bad IAM change (2026-11-11)</text>
+<text x="56" y="642" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">12:57:58</text>
+<text x="140" y="642" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">analyze loses s3:GetObject; valid file uploaded</text>
+<text x="56" y="666" font-size="12" font-weight="700" fill="#1d8102" text-anchor="start">12:59:55</text>
+<text x="140" y="666" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">composite pages: ~2 min to detect</text>
+<text x="56" y="690" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">~13:10</text>
+<text x="140" y="690" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">saved query shows AccessDenied</text>
+<text x="56" y="714" font-size="12" font-weight="700" fill="#b26200" text-anchor="start">13:14:55</text>
+<text x="140" y="714" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">OK email, while still broken (!)</text>
+<text x="56" y="738" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">~13:20</text>
+<text x="140" y="738" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">terraform plan finds drift, apply fixes</text>
+<text x="56" y="762" font-size="12" font-weight="700" fill="#16191f" text-anchor="start">~13:23</text>
+<text x="140" y="762" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">DLQ redrive replays the failed upload</text>
+<text x="56" y="786" font-size="12" font-weight="700" fill="#1d8102" text-anchor="start">13:29</text>
+<text x="140" y="786" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">file COMPLETE: no data lost</text>
+<text x="56" y="828" font-size="12.5" font-weight="700" fill="#16191f" text-anchor="start">Lessons</text>
+<text x="56" y="850" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">• "Alarm OK" ≠ recovered on a quiet pipeline: the error window</text>
+<text x="56" y="869" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">   went quiet 8 min before the fix. Prove recovery with a run.</text>
+<text x="56" y="888" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">• Day one: the DLQ alarm paged on a rejected sample file, so it</text>
+<text x="56" y="907" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">   became information and a metric filter took its place.</text>
+<text x="56" y="926" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">• DLQ dry run over-counted (visibility 0 repeats messages):</text>
+<text x="56" y="945" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start">   now de-duplicated by MessageId.</text>
+<rect x="620" y="590" width="540" height="400" rx="8" fill="#fafbfc" stroke="#d5dbe3" stroke-width="1.5"/>
+<text x="636" y="614" font-size="13" font-weight="700" fill="#16191f" text-anchor="start">Cost case study: Project 01, live Price List API</text>
+<text x="636" y="642" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Production pattern left on in dev</text>
+<text x="1146" y="642" font-size="12" font-weight="700" fill="#16191f" text-anchor="end">$134.17/mo</text>
+<text x="636" y="666" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Graviton (t3 → t4g)</text>
+<text x="1146" y="666" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">−$2.92</text>
+<text x="636" y="690" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">One shared NAT (not per AZ)</text>
+<text x="1146" y="690" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">−$36.50</text>
+<text x="636" y="714" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">RDS Single-AZ in dev</text>
+<text x="1146" y="714" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">−$13.98</text>
+<text x="636" y="738" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Office hours (12 h × weekdays)</text>
+<text x="1146" y="738" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">−$15.39</text>
+<text x="636" y="762" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Dev-sized total</text>
+<text x="1146" y="762" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">$65.38/mo (−51%)</text>
+<text x="636" y="800" font-size="12.5" font-weight="700" fill="#16191f" text-anchor="start">Checked against the real bill (Cost Explorer)</text>
+<text x="636" y="826" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">NAT gateway hour</text>
+<text x="1146" y="826" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">$0.0450 = list</text>
+<text x="636" y="848" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">ALB hour</text>
+<text x="1146" y="848" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">$0.0225 = list</text>
+<text x="636" y="870" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">t4g.micro hour</text>
+<text x="1146" y="870" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">$0.0084 = list</text>
+<text x="636" y="892" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">db.t4g.micro Multi-AZ / Single-AZ</text>
+<text x="1146" y="892" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">$0.0320 / $0.0160 = list</text>
+<text x="636" y="914" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">Public IPv4 hour</text>
+<text x="1146" y="914" font-size="12" font-weight="700" fill="#1d8102" text-anchor="end">$0.0050 = list</text>
+<text x="636" y="952" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start" font-style="italic">NAT ($36) and ALB ($16) can't be scheduled: for an idle dev</text>
+<text x="636" y="970" font-size="11.5" font-weight="normal" fill="#5f6b7a" text-anchor="start" font-style="italic">account, destroy between sessions. Projects 01–03 cost ~$1.36.</text>
+<polyline points="40,1032 84,1032" fill="none" stroke="#16191f" stroke-width="1.8" marker-end="url(#ah-16191f)" stroke-linejoin="round"/>
+<text x="92" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">pipeline flow</text>
+<polyline points="220,1032 264,1032" fill="none" stroke="#2e5fa8" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ah-2e5fa8)" stroke-linejoin="round"/>
+<text x="272" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">telemetry shared</text>
+<rect x="450" y="1023" width="5" height="16" rx="2" fill="#ed7100"/>
+<text x="462" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">workload</text>
+<rect x="595" y="1023" width="5" height="16" rx="2" fill="#e7157b"/>
+<text x="607" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">observability</text>
+<rect x="740" y="1023" width="5" height="16" rx="2" fill="#dd344c"/>
+<text x="752" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">paging / security</text>
+<rect x="885" y="1023" width="5" height="16" rx="2" fill="#2e5fa8"/>
+<text x="897" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">logs + telemetry</text>
+<rect x="1030" y="1023" width="5" height="16" rx="2" fill="#1d8102"/>
+<text x="1042" y="1036" font-size="12" font-weight="normal" fill="#5f6b7a" text-anchor="start">cost</text>
+</svg>
