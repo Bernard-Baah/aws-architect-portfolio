@@ -15,6 +15,11 @@ BUCKET=$(terraform output -raw upload_bucket)
 TABLE=$(terraform output -raw table_name)
 DLQ=$(terraform output -raw dlq_url)
 SM=$(terraform output -raw state_machine_arn)
+
+# Terraform state lives in the management account, so outputs are read with
+# your normal credentials. Set TARGET_PROFILE to run the AWS calls in another
+# account, e.g. the landing zone dev deployment: TARGET_PROFILE=lz-dev ./scripts/...
+if [ -n "${TARGET_PROFILE:-}" ]; then export AWS_PROFILE="$TARGET_PROFILE"; fi
 NAME=${SM##*:}
 RUN="burst-$(date +%Y%m%d-%H%M%S)"
 WORK=$(mktemp -d -t burst.XXXXXX)

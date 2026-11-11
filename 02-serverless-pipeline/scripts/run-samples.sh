@@ -6,6 +6,11 @@ set -euo pipefail
 BUCKET=$(terraform output -raw upload_bucket)
 TABLE=$(terraform output -raw table_name)
 DLQ=$(terraform output -raw dlq_url)
+
+# Terraform state lives in the management account, so outputs are read with
+# your normal credentials. Set TARGET_PROFILE to run the AWS calls in another
+# account, e.g. the landing zone dev deployment: TARGET_PROFILE=lz-dev ./scripts/...
+if [ -n "${TARGET_PROFILE:-}" ]; then export AWS_PROFILE="$TARGET_PROFILE"; fi
 RUN=$(date +%Y%m%d-%H%M%S)
 
 echo "Uploading samples to s3://$BUCKET/incoming/$RUN/"
