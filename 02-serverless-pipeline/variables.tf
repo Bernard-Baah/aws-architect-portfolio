@@ -19,3 +19,9 @@ variable "log_retention_days" {
   type    = number
   default = 14
 }
+
+variable "assume_role_arn" {
+  description = "Role to assume in the target account (e.g. the landing zone dev account). null = current credentials' account."
+  type        = string
+  default     = null
+}

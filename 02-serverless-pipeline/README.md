@@ -179,3 +179,15 @@ redrive decisions (replay throttled files with only the original event, never re
 and structural checks on the Step Functions definition (every transition valid, every state reachable,
 failures routed to the DLQ, validation errors never retried, throttling retry long but bounded, FAILED
 items reprocessable, DynamoDB reserved words aliased, no unused expression values).
+
+## Deploying into the landing zone's dev account (Project 05)
+The same code runs in any account. A separate Terraform **workspace** keeps dev's state apart (`env:/dev/...` in the state bucket), and `assume_role_arn` points the provider at the dev account through the landing zone's admin role:
+
+```bash
+cd 02-serverless-pipeline
+terraform init -backend-config="bucket=bernard-tfstate-40b007"
+terraform workspace new dev
+terraform apply -var="assume_role_arn=arn:aws:iam::<dev-account-id>:role/OrganizationAccountAccessRole"
+```
+
+Switch back with `terraform workspace select default`. Project 05 builds the dashboards, SLOs and alarms around this deployment.
