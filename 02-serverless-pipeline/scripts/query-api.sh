@@ -12,6 +12,11 @@ SIGN=1
 if [ "${1:-}" = "--unsigned" ]; then SIGN=0; shift; fi
 QUERY="${1:-status=COMPLETE}"
 URL="$(terraform output -raw api_url)?$QUERY"
+
+# Terraform state lives in the management account, so outputs are read with
+# your normal credentials. Set TARGET_PROFILE to run the AWS calls in another
+# account, e.g. the landing zone dev deployment: TARGET_PROFILE=lz-dev ./scripts/...
+if [ -n "${TARGET_PROFILE:-}" ]; then export AWS_PROFILE="$TARGET_PROFILE"; fi
 REGION=$(echo "$URL" | sed -n 's#^https://[^.]*\.execute-api\.\([^.]*\)\..*#\1#p')
 
 if [ "$SIGN" = 0 ]; then

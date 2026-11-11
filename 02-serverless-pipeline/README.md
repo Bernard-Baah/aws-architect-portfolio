@@ -190,4 +190,4 @@ terraform workspace new dev
 terraform apply -var="assume_role_arn=arn:aws:iam::<dev-account-id>:role/OrganizationAccountAccessRole"
 ```
 
-Switch back with `terraform workspace select default`. Project 05 builds the dashboards, SLOs and alarms around this deployment.
+Run the helper scripts against dev with `TARGET_PROFILE=lz-dev ./scripts/run-samples.sh` (outputs are read from state with your normal credentials, then the AWS calls switch to dev). Switch back with `terraform workspace select default`. Project 05 builds the dashboards, SLOs and alarms around this deployment.

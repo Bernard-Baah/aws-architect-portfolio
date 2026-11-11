@@ -15,6 +15,11 @@ DRY=0
 [ "${1:-}" = "--dry-run" ] && DRY=1
 DLQ=$(terraform output -raw dlq_url)
 SM=$(terraform output -raw state_machine_arn)
+
+# Terraform state lives in the management account, so outputs are read with
+# your normal credentials. Set TARGET_PROFILE to run the AWS calls in another
+# account, e.g. the landing zone dev deployment: TARGET_PROFILE=lz-dev ./scripts/...
+if [ -n "${TARGET_PROFILE:-}" ]; then export AWS_PROFILE="$TARGET_PROFILE"; fi
 TMP=$(mktemp -d -t redrive.XXXXXX)
 retried=0; skipped=0
 
