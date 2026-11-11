@@ -96,3 +96,35 @@ resource "aws_securityhub_configuration_policy_association" "root" {
   target_id = local.org.root_id
   policy_id = aws_securityhub_configuration_policy.fsbp.id
 }
+
+# A "disabled" policy can't turn Security Hub off in the delegated admin
+# itself (it must keep a hub to manage the org), so Audit kept running FSBP
+# checks, and as a centrally managed account it can't disable them locally
+# ("only the administrator can access this operation"). A policy attached
+# directly to Audit overrides the root one: hub on, no standards, no checks.
+resource "aws_securityhub_configuration_policy" "admin_no_standards" {
+  count    = var.security_hub_enabled ? 0 : 1
+  provider = aws.audit
+
+  name        = "admin-hub-no-standards"
+  description = "Keeps the admin hub for org management with no standards, so no checks are billed"
+
+  configuration_policy {
+    service_enabled       = true
+    enabled_standard_arns = []
+
+    security_controls_configuration {
+      disabled_control_identifiers = []
+    }
+  }
+
+  depends_on = [aws_securityhub_organization_configuration.this]
+}
+
+resource "aws_securityhub_configuration_policy_association" "audit" {
+  count    = var.security_hub_enabled ? 0 : 1
+  provider = aws.audit
+
+  target_id = local.accounts["audit"]
+  policy_id = aws_securityhub_configuration_policy.admin_no_standards[0].id
+}
