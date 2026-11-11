@@ -136,7 +136,7 @@ cd 04-landing-zone/security
 terraform apply
 ```
 
-- `security_hub_enabled = false` (default): the same central policy, still on the org root, becomes **Security Hub disabled**, so AWS turns it off in every account. Admin delegation and the aggregator stay, at no cost.
+- `security_hub_enabled = false` (default): the same central policy, still on the org root, becomes **Security Hub disabled**, so AWS turns it off in every member account. A disabled policy can't switch off the delegated admin's own hub, and Audit can't change it locally, so a second policy attached directly to Audit keeps its hub with **no standards** (no checks, no bill).
 - `config_enabled = false` (default): the recorders, delivery channels and service-linked roles are removed; the central bucket keeps the snapshots.
 - **Kept:** org CloudTrail (logs locked, KMS), GuardDuty (measured at cents per account), SCPs, Identity Center, hardening, budgets. A new score is one apply away with `-var security_hub_enabled=true -var config_enabled=true`.
 
