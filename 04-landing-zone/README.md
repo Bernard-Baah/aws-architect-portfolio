@@ -138,6 +138,8 @@ terraform apply
 
 - `security_hub_enabled = false` (default): the same central policy, still on the org root, becomes **Security Hub disabled**, so AWS turns it off in every member account. A disabled policy can't switch off the delegated admin's own hub, and Audit can't change it locally, so a second policy attached directly to Audit keeps its hub with **no standards** (no checks, no bill).
 - `config_enabled = false` (default): the recorders, delivery channels and service-linked roles are removed; the central bucket keeps the snapshots.
+- **Result (2026-11-11):** Config 0 recorders in all 10 account-regions; Security Hub "not subscribed" in all 8 member account-regions; Audit keeps its admin hub with no standards enabled.
+- **Lessons:** central configuration means *only the admin's policies* can change a member, including the admin itself (`BatchDisableStandards` → "only the administrator can access this operation"), and a disabled policy never disables the delegated admin. Also, once the policy removed the management account's hub, Terraform tried to re-enable it and was refused, so every per-account Security Hub resource has to follow the same switch.
 - **Kept:** org CloudTrail (logs locked, KMS), GuardDuty (measured at cents per account), SCPs, Identity Center, hardening, budgets. A new score is one apply away with `-var security_hub_enabled=true -var config_enabled=true`.
 
 ## Cost
