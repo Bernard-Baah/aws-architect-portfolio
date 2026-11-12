@@ -14,7 +14,12 @@ locals {
 
 # AWS requires Security Hub to be on in the management account (in at least
 # one region) before delegating. After that the central policy manages it.
+# Only needed to bootstrap the delegation. With Security Hub switched off the
+# central policy removes this hub, and as a centrally managed account it can't
+# be re-enabled locally, so the resource follows the switch.
 resource "aws_securityhub_account" "management" {
+  count = var.security_hub_enabled ? 1 : 0
+
   enable_default_standards = false
 
   lifecycle {
@@ -127,4 +132,9 @@ resource "aws_securityhub_configuration_policy_association" "audit" {
 
   target_id = local.accounts["audit"]
   policy_id = aws_securityhub_configuration_policy.admin_no_standards[0].id
+}
+
+moved {
+  from = aws_securityhub_account.management
+  to   = aws_securityhub_account.management[0]
 }
